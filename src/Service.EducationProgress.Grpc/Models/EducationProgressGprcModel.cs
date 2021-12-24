@@ -3,9 +3,9 @@
 namespace Service.EducationProgress.Grpc.Models
 {
 	[DataContract]
-	public class EducationProgressGrpcResponse
+	public class EducationProgressGprcModel
 	{
 		[DataMember(Order = 1)]
-		public EducationProgressGprcModel Progress { get; set; }
+		public int Value { get; set; }
 	}
 }

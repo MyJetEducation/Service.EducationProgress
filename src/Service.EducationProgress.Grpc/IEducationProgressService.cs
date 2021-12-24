@@ -12,6 +12,9 @@ namespace Service.EducationProgress.Grpc
 		ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request);
 
 		[OperationContract]
+		ValueTask<TaskEducationProgressGrpcResponse> GetTaskProgressAsync(GetTaskEducationProgressGrpcRequest request);
+
+		[OperationContract]
 		ValueTask<CommonGrpcResponse> SetProgressAsync(SetEducationProgressGrpcRequest request);
 
 		[OperationContract]

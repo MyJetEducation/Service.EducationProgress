@@ -39,20 +39,53 @@ namespace Service.EducationProgress.Services
 				return result;
 			}
 
-			float[] progressValues = items
-				.WhereIf(request.Tutorial != null, val => val.Tutorial == request.Tutorial)
-				.WhereIf(request.Unit != null, val => val.Unit == request.Unit)
-				.WhereIf(request.Task != null, val => val.Task == request.Task)
-				.Select(val => val.Value)
+			EducationProgressDto[] dtos = FilterProgressData(items, request.Tutorial, request.Unit);
+
+			float[] progressValues = dtos
+				.Select(val => val.Value ?? 0f)
 				.ToArray();
 
-			if (progressValues.IsNullOrEmpty())
+			if (dtos.IsNullOrEmpty())
 			{
 				_logger.LogError("Error while set education progress for user: {userId}, no progress found.", userId);
 				return result;
 			}
 
-			result.Value = (int) Math.Round(progressValues.Average());
+			result.Progress = new EducationProgressGprcModel
+			{
+				Value = (int) Math.Round(progressValues.Average())
+			};
+
+			return result;
+		}
+
+		private static EducationProgressDto[] FilterProgressData(EducationProgressDto[] items, EducationTutorial? tutorial, int? unit, int? task = null) => items
+			.WhereIf(tutorial != null, val => val.Tutorial == tutorial)
+			.WhereIf(unit != null, val => val.Unit == unit)
+			.WhereIf(task != null, val => val.Task == task)
+			.ToArray();
+
+		public async ValueTask<TaskEducationProgressGrpcResponse> GetTaskProgressAsync(GetTaskEducationProgressGrpcRequest request)
+		{
+			var result = new TaskEducationProgressGrpcResponse();
+			Guid? userId = request.UserId;
+
+			EducationProgressDto[] items = await GetProgress(userId);
+			if (items == null)
+			{
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+				return result;
+			}
+
+			float? progressValue = FilterProgressData(items, request.Tutorial, request.Unit, request.Task)
+				.Select(dto => dto.Value)
+				.FirstOrDefault();
+
+			result.Progress = new TaskEducationProgressGrpcModel
+			{
+				Value = (int) Math.Round(progressValue.GetValueOrDefault()),
+				HasProgress = progressValue != null
+			};
 
 			return result;
 		}
@@ -94,7 +127,7 @@ namespace Service.EducationProgress.Services
 				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
 			EducationProgressDto[] progressDtos = EducationStructure.GetProjections()
-				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task, 0f))
+				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task, null))
 				.ToArray();
 
 			return await SetProgress(request.UserId, progressDtos);

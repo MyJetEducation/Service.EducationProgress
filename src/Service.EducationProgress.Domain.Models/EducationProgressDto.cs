@@ -4,7 +4,7 @@ namespace Service.EducationProgress.Domain.Models
 {
 	public class EducationProgressDto
 	{
-		public EducationProgressDto(EducationTutorial tutorial, int unit, int task, float value)
+		public EducationProgressDto(EducationTutorial tutorial, int unit, int task, float? value)
 		{
 			Tutorial = tutorial;
 			Unit = unit;
@@ -18,6 +18,6 @@ namespace Service.EducationProgress.Domain.Models
 
 		public int Task { get; set; }
 
-		public float Value { get; set; }
+		public float? Value { get; set; }
 	}
 }
