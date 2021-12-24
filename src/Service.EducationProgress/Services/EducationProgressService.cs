@@ -34,7 +34,10 @@ namespace Service.EducationProgress.Services
 
 			EducationProgressDto[] items = await GetProgress(userId);
 			if (items == null)
+			{
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
 				return result;
+			}
 
 			float[] progressValues = items
 				.WhereIf(request.Tutorial != null, val => val.Tutorial == request.Tutorial)
@@ -63,8 +66,8 @@ namespace Service.EducationProgress.Services
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress value is not valid: {taskValue}.");
 
 			EducationProgressDto[] progressDtos = await GetProgress(userId);
-			if (progressDtos.IsNullOrEmpty())
-				return CommonGrpcResponse.Fail;
+			if (progressDtos == null)
+				return GetFailResponse($"No education progress record where found in ServerKeyValue storage for user: {userId}");
 
 			EducationProgressDto task = progressDtos
 				.Where(dto => dto.Tutorial == request.Tutorial)
@@ -87,8 +90,8 @@ namespace Service.EducationProgress.Services
 			Guid? userId = request.UserId;
 
 			EducationProgressDto[] items = await GetProgress(userId);
-			if (!items.IsNullOrEmpty())
-				return CommonGrpcResponse.Fail;
+			if (items != null)
+				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
 			EducationProgressDto[] progressDtos = EducationStructure.GetProjections()
 				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task, 0f))
@@ -119,14 +122,12 @@ namespace Service.EducationProgress.Services
 			});
 
 			string value = getResponse.Items?.FirstOrDefault(model => model.Key == KeyEducationProgress)?.Value;
-			if (value != null)
-			{
-				EducationProgressDto[] progressDtos = JsonSerializer.Deserialize<EducationProgressDto[]>(value);
-				if (!progressDtos.IsNullOrEmpty())
-					return progressDtos;
-			}
+			if (value == null)
+				return await ValueTask.FromResult<EducationProgressDto[]>(null);
 
-			_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+			EducationProgressDto[] progressDtos = JsonSerializer.Deserialize<EducationProgressDto[]>(value);
+			if (!progressDtos.IsNullOrEmpty())
+				return progressDtos;
 
 			return await ValueTask.FromResult<EducationProgressDto[]>(null);
 		}
