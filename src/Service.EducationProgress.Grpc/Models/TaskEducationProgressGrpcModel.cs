@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Service.EducationProgress.Grpc.Models
 {
@@ -10,5 +11,8 @@ namespace Service.EducationProgress.Grpc.Models
 
 		[DataMember(Order = 2)]
 		public bool HasProgress { get; set; }
+
+		[DataMember(Order = 3)]
+		public DateTime WhenFinished { get; set; }
 	}
 }

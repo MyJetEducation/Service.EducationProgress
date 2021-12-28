@@ -77,15 +77,22 @@ namespace Service.EducationProgress.Services
 				return result;
 			}
 
-			float? progressValue = FilterProgressData(items, request.Tutorial, request.Unit, request.Task)
-				.Select(dto => dto.Value)
-				.FirstOrDefault();
+			EducationProgressDto progress = FilterProgressData(items, request.Tutorial, request.Unit, request.Task).FirstOrDefault();
 
-			result.Progress = new TaskEducationProgressGrpcModel
+			bool hasProgress = progress?.Value != null;
+
+			var resultProgress = new TaskEducationProgressGrpcModel
 			{
-				Value = (int) Math.Round(progressValue.GetValueOrDefault()),
-				HasProgress = progressValue != null
+				HasProgress = hasProgress
 			};
+
+			if (hasProgress)
+			{
+				resultProgress.Value = (int) Math.Round(progress.Value.GetValueOrDefault());
+				resultProgress.WhenFinished = progress.WhenFinished.GetValueOrDefault();
+			}
+
+			result.Progress = resultProgress;
 
 			return result;
 		}
@@ -110,10 +117,8 @@ namespace Service.EducationProgress.Services
 			if (task == null)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress for task not exists.");
 
-			if (task.Value.Equals(taskValue))
-				return CommonGrpcResponse.Success;
-
 			task.Value = taskValue;
+			task.WhenFinished = DateTime.UtcNow;
 
 			return await SetProgress(request.UserId, progressDtos);
 		}
@@ -127,7 +132,7 @@ namespace Service.EducationProgress.Services
 				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
 			EducationProgressDto[] progressDtos = EducationStructure.GetProjections()
-				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task, null))
+				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
 				.ToArray();
 
 			return await SetProgress(request.UserId, progressDtos);
