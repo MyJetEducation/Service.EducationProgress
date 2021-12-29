@@ -21,5 +21,7 @@ namespace Service.EducationProgress.Domain.Models
 		public float? Value { get; set; }
 
 		public DateTime? WhenFinished { get; set; }
+
+		public TimeSpan? Duration { get; set; }
 	}
 }

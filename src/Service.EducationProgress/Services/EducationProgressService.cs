@@ -90,6 +90,7 @@ namespace Service.EducationProgress.Services
 			{
 				resultProgress.Value = (int) Math.Round(progress.Value.GetValueOrDefault());
 				resultProgress.WhenFinished = progress.WhenFinished.GetValueOrDefault();
+				resultProgress.Duration = progress.Duration.GetValueOrDefault();
 			}
 
 			result.Progress = resultProgress;
@@ -119,6 +120,7 @@ namespace Service.EducationProgress.Services
 
 			task.Value = taskValue;
 			task.WhenFinished = DateTime.UtcNow;
+			task.Duration = request.Duration;
 
 			return await SetProgress(request.UserId, progressDtos);
 		}

@@ -14,5 +14,8 @@ namespace Service.EducationProgress.Grpc.Models
 
 		[DataMember(Order = 3)]
 		public DateTime WhenFinished { get; set; }
+
+		[DataMember(Order = 4)]
+		public TimeSpan Duration { get; set; }
 	}
 }
