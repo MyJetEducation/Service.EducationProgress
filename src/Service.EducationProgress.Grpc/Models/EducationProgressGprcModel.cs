@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Service.EducationProgress.Grpc.Models
 {
@@ -7,5 +8,8 @@ namespace Service.EducationProgress.Grpc.Models
 	{
 		[DataMember(Order = 1)]
 		public int Value { get; set; }
+
+		[DataMember(Order = 2)]
+		public TimeSpan? Duration { get; set; }
 	}
 }

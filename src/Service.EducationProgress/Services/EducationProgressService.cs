@@ -53,7 +53,8 @@ namespace Service.EducationProgress.Services
 
 			result.Progress = new EducationProgressGprcModel
 			{
-				Value = (int) Math.Round(progressValues.Average())
+				Value = (int) Math.Round(progressValues.Average()),
+				Duration = new TimeSpan(dtos.Sum(item => item.Duration.GetValueOrDefault().Ticks))
 			};
 
 			return result;
