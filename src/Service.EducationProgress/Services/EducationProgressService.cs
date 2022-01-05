@@ -156,13 +156,12 @@ namespace Service.EducationProgress.Services
 
 		private async ValueTask<EducationProgressDto[]> GetProgress(Guid? userId)
 		{
-			ItemsGrpcResponse getResponse = await _serverKeyValueService.Get(new ItemsGetGrpcRequest
+			string value = (await _serverKeyValueService.GetSingle(new ItemsGetSingleGrpcRequest
 			{
 				UserId = userId,
-				Keys = new[] {KeyEducationProgress}
-			});
+				Key = KeyEducationProgress
+			}))?.Value;
 
-			string value = getResponse.Items?.FirstOrDefault(model => model.Key == KeyEducationProgress)?.Value;
 			if (value == null)
 				return await ValueTask.FromResult<EducationProgressDto[]>(null);
 
