@@ -16,7 +16,7 @@ namespace Service.EducationProgress.Services
 {
 	public class EducationProgressService : IEducationProgressService
 	{
-		private static readonly string KeyEducationProgress = Program.Settings.KeyEducationProgress;
+		private static readonly string KeyEducationProgress = Program.ReloadedSettings(model => model.KeyEducationProgress).Invoke();
 
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
