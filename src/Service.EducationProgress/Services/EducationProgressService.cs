@@ -123,7 +123,7 @@ namespace Service.EducationProgress.Services
 			if (task == null)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress for task not exists.");
 
-			bool wasNoProgress = task.Value == 0;
+			bool wasNoProgress = task.Value.GetValueOrDefault() == 0;
 
 			task.Value = taskValue;
 			task.WhenFinished = DateTime.UtcNow;
