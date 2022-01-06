@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Service.ServerKeyValue.Client;
+using Service.UserKnowledge.Client;
 
 namespace Service.EducationProgress.Modules
 {
@@ -8,6 +9,7 @@ namespace Service.EducationProgress.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
+            builder.RegisterUserKnowledgeClient(Program.Settings.UserKnowledgeServiceUrl);
         }
     }
 }

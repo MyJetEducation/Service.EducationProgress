@@ -11,6 +11,8 @@ using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
+using Service.UserKnowledge.Grpc;
+using Service.UserKnowledge.Grpc.Models;
 
 namespace Service.EducationProgress.Services
 {
@@ -20,11 +22,13 @@ namespace Service.EducationProgress.Services
 
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
+		private readonly IUserKnowledgeService _userKnowledgeService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger)
+		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserKnowledgeService userKnowledgeService)
 		{
 			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;
+			_userKnowledgeService = userKnowledgeService;
 		}
 
 		public async ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request)
@@ -119,12 +123,26 @@ namespace Service.EducationProgress.Services
 			if (task == null)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress for task not exists.");
 
+			bool wasNoProgress = task.Value == 0;
+
 			task.Value = taskValue;
 			task.WhenFinished = DateTime.UtcNow;
 			task.Duration = request.Duration;
 
-			return await SetProgress(request.UserId, progressDtos);
+			CommonGrpcResponse commonGrpcResponse = await SetProgress(request.UserId, progressDtos);
+			if (wasNoProgress && commonGrpcResponse.IsSuccess)
+				await SetKnowledge(request);
+
+			return commonGrpcResponse;
 		}
+
+		private async Task SetKnowledge(SetEducationProgressGrpcRequest request) => await _userKnowledgeService.SetKnowledgeAsync(new SetKnowledgeGrpcRequset
+		{
+			UserId = request.UserId,
+			Tutorial = request.Tutorial,
+			Unit = request.Unit,
+			Task = request.Task
+		});
 
 		public async ValueTask<CommonGrpcResponse> InitProgressAsync(InitEducationProgressGrpcRequest request)
 		{
@@ -134,7 +152,7 @@ namespace Service.EducationProgress.Services
 			if (items != null)
 				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
-			EducationProgressDto[] progressDtos = EducationStructure.GetProjections()
+			EducationProgressDto[] progressDtos = EducationHelper.GetProjections()
 				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
 				.ToArray();
 
