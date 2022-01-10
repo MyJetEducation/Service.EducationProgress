@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using Service.Core.Domain.Extensions;
 using Service.Core.Domain.Models.Education;
@@ -9,12 +10,10 @@ using Service.Core.Grpc.Models;
 using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
+using Service.EducationProgress.Mappers;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 using Service.UserHabit.Grpc;
-using Service.UserHabit.Grpc.Models;
-using Service.UserKnowledge.Grpc;
-using Service.UserKnowledge.Grpc.Models;
 
 namespace Service.EducationProgress.Services
 {
@@ -24,15 +23,15 @@ namespace Service.EducationProgress.Services
 
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
-		private readonly IUserKnowledgeService _userKnowledgeService;
+		private readonly IPublisher<ISetProgressInfo> _publisher;
 		private readonly IUserHabitService _userHabitService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserKnowledgeService userKnowledgeService, IUserHabitService userHabitService)
+		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserHabitService userHabitService, IPublisher<ISetProgressInfo> publisher)
 		{
 			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;
-			_userKnowledgeService = userKnowledgeService;
 			_userHabitService = userHabitService;
+			_publisher = publisher;
 		}
 
 		public async ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request)
@@ -136,28 +135,14 @@ namespace Service.EducationProgress.Services
 			CommonGrpcResponse commonGrpcResponse = await SetProgress(request.UserId, progressDtos);
 			if (wasNoProgress && commonGrpcResponse.IsSuccess)
 			{
-				await SetKnowledge(request);
-				await SetHabit(request);
+				await _userHabitService.SetHabitAsync(request.ToGrpcModel());
+
+				_logger.LogDebug($"Publish to service bus from EducationProgress, object: {JsonSerializer.Serialize(request.ToBusModel())}");
+				await _publisher.PublishAsync(request.ToBusModel());
 			}
 
 			return commonGrpcResponse;
 		}
-
-		private async Task SetKnowledge(SetEducationProgressGrpcRequest request) => await _userKnowledgeService.SetKnowledgeAsync(new SetKnowledgeGrpcRequset
-		{
-			UserId = request.UserId,
-			Tutorial = request.Tutorial,
-			Unit = request.Unit,
-			Task = request.Task
-		});
-
-		private async Task SetHabit(SetEducationProgressGrpcRequest request) => await _userHabitService.SetHabitAsync(new SetHabitGrpcRequset
-		{
-			UserId = request.UserId,
-			Tutorial = request.Tutorial,
-			Unit = request.Unit,
-			Task = request.Task
-		});
 
 		public async ValueTask<CommonGrpcResponse> InitProgressAsync(InitEducationProgressGrpcRequest request)
 		{

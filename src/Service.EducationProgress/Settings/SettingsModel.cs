@@ -17,8 +17,8 @@ namespace Service.EducationProgress.Settings
         [YamlProperty("EducationProgress.ServerKeyValueServiceUrl")]
         public string ServerKeyValueServiceUrl { get; set; }
 
-        [YamlProperty("EducationProgress.UserKnowledgeServiceUrl")]
-        public string UserKnowledgeServiceUrl { get; set; }
+        [YamlProperty("EducationProgress.ServiceBusWriter")]
+        public string ServiceBusWriter { get; set; }
 
         [YamlProperty("EducationProgress.UserHabitServiceUrl")]
         public string UserHabitServiceUrl { get; set; }
