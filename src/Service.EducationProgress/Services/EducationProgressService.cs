@@ -11,6 +11,8 @@ using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
+using Service.UserHabit.Grpc;
+using Service.UserHabit.Grpc.Models;
 using Service.UserKnowledge.Grpc;
 using Service.UserKnowledge.Grpc.Models;
 
@@ -23,12 +25,14 @@ namespace Service.EducationProgress.Services
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
 		private readonly IUserKnowledgeService _userKnowledgeService;
+		private readonly IUserHabitService _userHabitService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserKnowledgeService userKnowledgeService)
+		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserKnowledgeService userKnowledgeService, IUserHabitService userHabitService)
 		{
 			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;
 			_userKnowledgeService = userKnowledgeService;
+			_userHabitService = userHabitService;
 		}
 
 		public async ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request)
@@ -131,12 +135,23 @@ namespace Service.EducationProgress.Services
 
 			CommonGrpcResponse commonGrpcResponse = await SetProgress(request.UserId, progressDtos);
 			if (wasNoProgress && commonGrpcResponse.IsSuccess)
+			{
 				await SetKnowledge(request);
+				await SetHabit(request);
+			}
 
 			return commonGrpcResponse;
 		}
 
 		private async Task SetKnowledge(SetEducationProgressGrpcRequest request) => await _userKnowledgeService.SetKnowledgeAsync(new SetKnowledgeGrpcRequset
+		{
+			UserId = request.UserId,
+			Tutorial = request.Tutorial,
+			Unit = request.Unit,
+			Task = request.Task
+		});
+
+		private async Task SetHabit(SetEducationProgressGrpcRequest request) => await _userHabitService.SetHabitAsync(new SetHabitGrpcRequset
 		{
 			UserId = request.UserId,
 			Tutorial = request.Tutorial,
