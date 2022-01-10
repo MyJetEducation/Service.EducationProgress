@@ -11,7 +11,7 @@ namespace Service.EducationProgress.Modules
 		{
 			builder.RegisterKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
 			builder.RegisterUserKnowledgeClient(Program.Settings.UserKnowledgeServiceUrl);
-			builder.RegisterUserHabitClient(Program.Settings.UserKnowledgeServiceUrl);
+			builder.RegisterUserHabitClient(Program.Settings.UserHabitServiceUrl);
 		}
 	}
 }
