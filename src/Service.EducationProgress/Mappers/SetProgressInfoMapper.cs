@@ -12,13 +12,5 @@ namespace Service.EducationProgress.Mappers
 			Unit = request.Unit,
 			Task = request.Task
 		};
-
-		public static SetProgressInfoServiceBusModel ToBusModel(this ISetProgressInfo info) => new SetProgressInfoServiceBusModel
-		{
-			UserId = info.UserId,
-			Tutorial = info.Tutorial,
-			Unit = info.Unit,
-			Task = info.Task
-		};
 	}
 }

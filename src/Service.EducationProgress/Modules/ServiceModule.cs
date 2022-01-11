@@ -16,7 +16,7 @@ namespace Service.EducationProgress.Modules
 			builder.RegisterUserHabitClient(Program.Settings.UserHabitServiceUrl);
 
 			var tcpServiceBus = new MyServiceBusTcpClient(() => Program.Settings.ServiceBusWriter, "MyJetEducation Service.EducationProgress");
-			IPublisher<ISetProgressInfo> clientRegisterPublisher = new MyServiceBusPublisher(tcpServiceBus);
+			IPublisher<SetProgressInfoServiceBusModel> clientRegisterPublisher = new MyServiceBusPublisher(tcpServiceBus);
 			builder.Register(context => clientRegisterPublisher);
 			tcpServiceBus.Start();
 		}

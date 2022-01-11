@@ -23,10 +23,10 @@ namespace Service.EducationProgress.Services
 
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
-		private readonly IPublisher<ISetProgressInfo> _publisher;
+		private readonly IPublisher<SetProgressInfoServiceBusModel> _publisher;
 		private readonly IUserHabitService _userHabitService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserHabitService userHabitService, IPublisher<ISetProgressInfo> publisher)
+		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserHabitService userHabitService, IPublisher<SetProgressInfoServiceBusModel> publisher)
 		{
 			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;

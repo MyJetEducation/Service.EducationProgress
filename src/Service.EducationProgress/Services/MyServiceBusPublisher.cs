@@ -3,11 +3,10 @@ using DotNetCoreDecorators;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.TcpClient;
 using Service.EducationProgress.Domain.Models;
-using Service.EducationProgress.Mappers;
 
 namespace Service.EducationProgress.Services
 {
-	public class MyServiceBusPublisher : IPublisher<ISetProgressInfo>
+	public class MyServiceBusPublisher : IPublisher<SetProgressInfoServiceBusModel>
 	{
 		private readonly MyServiceBusTcpClient _client;
 
@@ -17,9 +16,9 @@ namespace Service.EducationProgress.Services
 			_client.CreateTopicIfNotExists(SetProgressInfoServiceBusModel.TopicName);
 		}
 
-		public ValueTask PublishAsync(ISetProgressInfo valueToPublish)
+		public ValueTask PublishAsync(SetProgressInfoServiceBusModel valueToPublish)
 		{
-			byte[] bytesToSend = valueToPublish.ToBusModel().ServiceBusContractToByteArray();
+			byte[] bytesToSend = valueToPublish.ServiceBusContractToByteArray();
 
 			Task task = _client.PublishAsync(SetProgressInfoServiceBusModel.TopicName, bytesToSend, false);
 
