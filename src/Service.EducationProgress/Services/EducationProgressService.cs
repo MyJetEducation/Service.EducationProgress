@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -13,24 +14,21 @@ using Service.EducationProgress.Grpc.Models;
 using Service.EducationProgress.Mappers;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
-using Service.UserHabit.Grpc;
 
 namespace Service.EducationProgress.Services
 {
 	public class EducationProgressService : IEducationProgressService
 	{
-		private static readonly string KeyEducationProgress = Program.ReloadedSettings(model => model.KeyEducationProgress).Invoke();
+		private static readonly Func<string> KeyEducationProgress = Program.ReloadedSettings(model => model.KeyEducationProgress);
 
 		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
 		private readonly IPublisher<SetProgressInfoServiceBusModel> _publisher;
-		private readonly IUserHabitService _userHabitService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IUserHabitService userHabitService, IPublisher<SetProgressInfoServiceBusModel> publisher)
+		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IPublisher<SetProgressInfoServiceBusModel> publisher)
 		{
 			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;
-			_userHabitService = userHabitService;
 			_publisher = publisher;
 		}
 
@@ -48,26 +46,20 @@ namespace Service.EducationProgress.Services
 
 			EducationProgressDto[] dtos = FilterProgressData(items, request.Tutorial, request.Unit);
 
-			float[] progressValues = dtos
-				.Select(val => val.Value ?? 0f)
-				.ToArray();
-
 			if (dtos.IsNullOrEmpty())
 			{
-				_logger.LogError("Error while set education progress for user: {userId}, no progress found.", userId);
+				_logger.LogError("Error while get education progress for user: {userId}, no progress found.", userId);
 				return result;
 			}
 
-			result.Progress = new EducationProgressGprcModel
-			{
-				Value = (int) Math.Round(progressValues.Average()),
-				Duration = dtos.Sum(dto => dto.Duration.GetValueOrDefault())
-			};
+			result.Value = (int) Math.Round(dtos
+				.Select(val => val.Value.GetValueOrDefault())
+				.ToArray().Average());
 
 			return result;
 		}
 
-		private static EducationProgressDto[] FilterProgressData(EducationProgressDto[] items, EducationTutorial? tutorial, int? unit, int? task = null) => items
+		private static EducationProgressDto[] FilterProgressData(IEnumerable<EducationProgressDto> items, EducationTutorial? tutorial, int? unit, int? task = null) => items
 			.WhereIf(tutorial != null, val => val.Tutorial == tutorial)
 			.WhereIf(unit != null, val => val.Unit == unit)
 			.WhereIf(task != null, val => val.Task == task)
@@ -96,9 +88,8 @@ namespace Service.EducationProgress.Services
 
 			if (hasProgress)
 			{
-				resultProgress.Value = (int) Math.Round(progress.Value.GetValueOrDefault());
-				resultProgress.WhenFinished = progress.WhenFinished.GetValueOrDefault();
-				resultProgress.Duration = progress.Duration.GetValueOrDefault();
+				resultProgress.Value = progress.Value.GetValueOrDefault();
+				resultProgress.Date = progress.Date;
 			}
 
 			result.Progress = resultProgress;
@@ -109,7 +100,7 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<CommonGrpcResponse> SetProgressAsync(SetEducationProgressGrpcRequest request)
 		{
 			Guid? userId = request.UserId;
-			float taskValue = request.Value;
+			int taskValue = request.Value;
 
 			if (taskValue > 100 || taskValue < 0)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress value is not valid: {taskValue}.");
@@ -126,20 +117,12 @@ namespace Service.EducationProgress.Services
 			if (task == null)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress for task not exists.");
 
-			bool wasNoProgress = task.Value.GetValueOrDefault() == 0;
-
 			task.Value = taskValue;
-			task.WhenFinished = DateTime.UtcNow;
-			task.Duration = request.Duration;
+			task.Date = DateTime.UtcNow;
 
 			CommonGrpcResponse commonGrpcResponse = await SetProgress(request.UserId, progressDtos);
-			if (wasNoProgress && commonGrpcResponse.IsSuccess)
-			{
-				await _userHabitService.SetHabitAsync(request.ToGrpcModel());
-
-				_logger.LogDebug($"Publish to service bus from EducationProgress, object: {JsonSerializer.Serialize(request.ToBusModel())}");
+			if (commonGrpcResponse.IsSuccess)
 				await _publisher.PublishAsync(request.ToBusModel());
-			}
 
 			return commonGrpcResponse;
 		}
@@ -166,7 +149,7 @@ namespace Service.EducationProgress.Services
 			{
 				new KeyValueGrpcModel
 				{
-					Key = KeyEducationProgress,
+					Key = KeyEducationProgress.Invoke(),
 					Value = JsonSerializer.Serialize(progressDtos)
 				}
 			}
@@ -177,7 +160,7 @@ namespace Service.EducationProgress.Services
 			string value = (await _serverKeyValueService.GetSingle(new ItemsGetSingleGrpcRequest
 			{
 				UserId = userId,
-				Key = KeyEducationProgress
+				Key = KeyEducationProgress.Invoke()
 			}))?.Value;
 
 			if (value == null)

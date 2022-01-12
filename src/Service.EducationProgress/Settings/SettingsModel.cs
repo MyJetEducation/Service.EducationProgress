@@ -20,9 +20,6 @@ namespace Service.EducationProgress.Settings
         [YamlProperty("EducationProgress.ServiceBusWriter")]
         public string ServiceBusWriter { get; set; }
 
-        [YamlProperty("EducationProgress.UserHabitServiceUrl")]
-        public string UserHabitServiceUrl { get; set; }
-
         [YamlProperty("EducationProgress.KeyEducationProgress")]
         public string KeyEducationProgress { get; set; }
     }

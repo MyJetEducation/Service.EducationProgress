@@ -6,6 +6,6 @@ namespace Service.EducationProgress.Grpc.Models
 	public class EducationProgressGrpcResponse
 	{
 		[DataMember(Order = 1)]
-		public EducationProgressGprcModel Progress { get; set; }
+		public int Value { get; set; }
 	}
 }

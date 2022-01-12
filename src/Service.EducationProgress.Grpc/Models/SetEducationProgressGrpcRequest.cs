@@ -20,7 +20,7 @@ namespace Service.EducationProgress.Grpc.Models
 		public int Task { get; set; }
 
 		[DataMember(Order = 5)]
-		public float Value { get; set; }
+		public int Value { get; set; }
 
 		[DataMember(Order = 6)]
 		public TimeSpan Duration { get; set; }

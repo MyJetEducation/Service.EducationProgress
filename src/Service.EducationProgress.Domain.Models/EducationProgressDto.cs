@@ -18,10 +18,8 @@ namespace Service.EducationProgress.Domain.Models
 
 		public int Task { get; set; }
 
-		public float? Value { get; set; }
+		public int? Value { get; set; }
 
-		public DateTime? WhenFinished { get; set; }
-
-		public TimeSpan? Duration { get; set; }
+		public DateTime? Date { get; set; }
 	}
 }

@@ -10,7 +10,8 @@ namespace Service.EducationProgress.Mappers
 			UserId = request.UserId,
 			Tutorial = request.Tutorial,
 			Unit = request.Unit,
-			Task = request.Task
+			Task = request.Task,
+			Duration = request.Duration
 		};
 	}
 }

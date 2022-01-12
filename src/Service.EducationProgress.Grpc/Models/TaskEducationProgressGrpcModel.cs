@@ -13,9 +13,6 @@ namespace Service.EducationProgress.Grpc.Models
 		public bool HasProgress { get; set; }
 
 		[DataMember(Order = 3)]
-		public DateTime WhenFinished { get; set; }
-
-		[DataMember(Order = 4)]
-		public TimeSpan Duration { get; set; }
+		public DateTime? Date { get; set; }
 	}
 }
