@@ -22,6 +22,6 @@ namespace Service.EducationProgress.Domain.Models
 		public int Task { get; set; }
 
 		[DataMember(Order = 5)]
-		public TimeSpan Duration { get; set; }
+		public bool SetUserProgress { get; set; }
 	}
 }

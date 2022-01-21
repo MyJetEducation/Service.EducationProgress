@@ -19,17 +19,19 @@ namespace Service.EducationProgress.Services
 {
 	public class EducationProgressService : IEducationProgressService
 	{
-		private static readonly Func<string> KeyEducationProgress = Program.ReloadedSettings(model => model.KeyEducationProgress);
-
-		private readonly IServerKeyValueService _serverKeyValueService;
 		private readonly ILogger<EducationProgressService> _logger;
 		private readonly IPublisher<SetProgressInfoServiceBusModel> _publisher;
+		private readonly IServerKeyValueService _serverKeyValueService;
 
-		public EducationProgressService(IServerKeyValueService serverKeyValueService, ILogger<EducationProgressService> logger, IPublisher<SetProgressInfoServiceBusModel> publisher)
+		private static Func<string> KeyEducationProgress => Program.ReloadedSettings(model => model.KeyEducationProgress);
+
+		public EducationProgressService(ILogger<EducationProgressService> logger,
+			IPublisher<SetProgressInfoServiceBusModel> publisher,
+			IServerKeyValueService serverKeyValueService)
 		{
-			_serverKeyValueService = serverKeyValueService;
 			_logger = logger;
 			_publisher = publisher;
+			_serverKeyValueService = serverKeyValueService;
 		}
 
 		public async ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request)
@@ -37,8 +39,8 @@ namespace Service.EducationProgress.Services
 			var result = new EducationProgressGrpcResponse();
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await GetProgress(userId);
-			if (items == null)
+			EducationProgressDto[] items = await GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
 			{
 				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
 				return result;
@@ -70,8 +72,8 @@ namespace Service.EducationProgress.Services
 			var result = new TaskEducationProgressGrpcResponse();
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await GetProgress(userId);
-			if (items == null)
+			EducationProgressDto[] items = await GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
 			{
 				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
 				return result;
@@ -79,7 +81,7 @@ namespace Service.EducationProgress.Services
 
 			EducationProgressDto progress = FilterProgressData(items, request.Tutorial, request.Unit, request.Task).FirstOrDefault();
 
-			bool hasProgress = progress?.Value != null;
+			bool hasProgress = progress is {HasProgress: true};
 
 			var resultProgress = new TaskEducationProgressGrpcModel
 			{
@@ -100,13 +102,13 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<CommonGrpcResponse> SetProgressAsync(SetEducationProgressGrpcRequest request)
 		{
 			Guid? userId = request.UserId;
-			int taskValue = request.Value;
+			int taskScore = request.Value;
 
-			if (taskValue > 100 || taskValue < 0)
-				return GetFailResponse($"Error while set education progress for user: {userId}, progress value is not valid: {taskValue}.");
+			if (taskScore > 100 || taskScore < 0)
+				return GetFailResponse($"Error while set education progress for user: {userId}, progress value is not valid: {taskScore}.");
 
-			EducationProgressDto[] progressDtos = await GetProgress(userId);
-			if (progressDtos == null)
+			EducationProgressDto[] progressDtos = await GetEducationProgress(userId);
+			if (progressDtos.IsNullOrEmpty())
 				return GetFailResponse($"No education progress record where found in ServerKeyValue storage for user: {userId}");
 
 			EducationProgressDto task = progressDtos
@@ -117,12 +119,23 @@ namespace Service.EducationProgress.Services
 			if (task == null)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress for task not exists.");
 
-			task.Value = taskValue;
+			int? oldScore = task.Value.GetValueOrDefault();
+			if (request.IsRetry)
+				task.Retries = task.Retries.GetValueOrDefault() + 1;
+
+			task.Value = taskScore;
 			task.Date = DateTime.UtcNow;
 
-			CommonGrpcResponse commonGrpcResponse = await SetProgress(request.UserId, progressDtos);
+			CommonGrpcResponse commonGrpcResponse = await SetEducationProgress(request.UserId, progressDtos);
 			if (commonGrpcResponse.IsSuccess)
-				await _publisher.PublishAsync(request.ToBusModel());
+			{
+				//Обновить прогресс пользователя
+				//Только при успешном прохождении таска
+				//Исключаем повторное обновление с попытки
+				//Либо включаем попытку, если до этого результат был не успешный
+				bool newRequestHasResult = taskScore >= 80 && (!request.IsRetry || oldScore < 80);
+				await _publisher.PublishAsync(request.ToBusModel(newRequestHasResult));
+			}
 
 			return commonGrpcResponse;
 		}
@@ -131,18 +144,18 @@ namespace Service.EducationProgress.Services
 		{
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await GetProgress(userId);
-			if (items != null)
+			EducationProgressDto[] items = await GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
 				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
 			EducationProgressDto[] progressDtos = EducationHelper.GetProjections()
 				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
 				.ToArray();
 
-			return await SetProgress(request.UserId, progressDtos);
+			return await SetEducationProgress(request.UserId, progressDtos);
 		}
 
-		private async Task<CommonGrpcResponse> SetProgress(Guid? userId, EducationProgressDto[] progressDtos) => await _serverKeyValueService.Put(new ItemsPutGrpcRequest
+		private async Task<CommonGrpcResponse> SetEducationProgress(Guid? userId, EducationProgressDto[] progressDtos) => await _serverKeyValueService.Put(new ItemsPutGrpcRequest
 		{
 			UserId = userId,
 			Items = new[]
@@ -155,7 +168,7 @@ namespace Service.EducationProgress.Services
 			}
 		});
 
-		private async ValueTask<EducationProgressDto[]> GetProgress(Guid? userId)
+		private async ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId)
 		{
 			string value = (await _serverKeyValueService.GetSingle(new ItemsGetSingleGrpcRequest
 			{

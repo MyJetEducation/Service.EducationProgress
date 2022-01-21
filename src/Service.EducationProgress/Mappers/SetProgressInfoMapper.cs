@@ -5,13 +5,13 @@ namespace Service.EducationProgress.Mappers
 {
 	public static class SetProgressInfoMapper
 	{
-		public static SetProgressInfoServiceBusModel ToBusModel(this SetEducationProgressGrpcRequest request) => new SetProgressInfoServiceBusModel
+		public static SetProgressInfoServiceBusModel ToBusModel(this SetEducationProgressGrpcRequest request, bool newRequestHasResult) => new SetProgressInfoServiceBusModel
 		{
 			UserId = request.UserId,
 			Tutorial = request.Tutorial,
 			Unit = request.Unit,
 			Task = request.Task,
-			Duration = request.Duration
+			SetUserProgress = newRequestHasResult
 		};
 	}
 }

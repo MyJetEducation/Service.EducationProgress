@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using Service.Core.Domain.Models.Education;
 
 namespace Service.EducationProgress.Domain.Models
@@ -21,5 +22,10 @@ namespace Service.EducationProgress.Domain.Models
 		public int? Value { get; set; }
 
 		public DateTime? Date { get; set; }
+
+		public int? Retries { get; set; }
+
+		[JsonIgnore]
+		public bool HasProgress => Value != null;
 	}
 }
