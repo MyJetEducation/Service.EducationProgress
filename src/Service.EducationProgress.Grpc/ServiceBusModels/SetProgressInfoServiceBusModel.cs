@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using Service.Core.Domain.Models.Education;
 
-namespace Service.EducationProgress.Domain.Models
+namespace Service.EducationProgress.Grpc.ServiceBusModels
 {
 	[DataContract]
 	public class SetProgressInfoServiceBusModel
@@ -23,5 +23,8 @@ namespace Service.EducationProgress.Domain.Models
 
 		[DataMember(Order = 5)]
 		public bool SetUserProgress { get; set; }
+
+		[DataMember(Order = 6)]
+		public TimeSpan Duration { get; set; }
 	}
 }

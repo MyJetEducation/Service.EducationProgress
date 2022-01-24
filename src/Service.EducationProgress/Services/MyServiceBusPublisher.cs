@@ -3,6 +3,7 @@ using DotNetCoreDecorators;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.TcpClient;
 using Service.EducationProgress.Domain.Models;
+using Service.EducationProgress.Grpc.ServiceBusModels;
 
 namespace Service.EducationProgress.Services
 {

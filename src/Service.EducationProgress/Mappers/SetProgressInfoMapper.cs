@@ -1,5 +1,5 @@
-﻿using Service.EducationProgress.Domain.Models;
-using Service.EducationProgress.Grpc.Models;
+﻿using Service.EducationProgress.Grpc.Models;
+using Service.EducationProgress.Grpc.ServiceBusModels;
 
 namespace Service.EducationProgress.Mappers
 {
@@ -11,7 +11,8 @@ namespace Service.EducationProgress.Mappers
 			Tutorial = request.Tutorial,
 			Unit = request.Unit,
 			Task = request.Task,
-			SetUserProgress = newRequestHasResult
+			SetUserProgress = newRequestHasResult,
+			Duration = request.Duration
 		};
 	}
 }
