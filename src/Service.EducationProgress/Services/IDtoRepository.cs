@@ -15,8 +15,8 @@ namespace Service.EducationProgress.Services
 
 		ValueTask<CommonGrpcResponse> SetTestTasks100Prc(Guid? userId, TestTasks100PrcDto prcDto);
 
-		ValueTask<UnitsFinishedTodayDto> GetUnitsFinishedToday(Guid? userId);
+		//ValueTask<UnitsFinishedTodayDto> GetUnitsFinishedToday(Guid? userId);
 
-		ValueTask<CommonGrpcResponse> SetUnitsFinishedToday(Guid? userId, UnitsFinishedTodayDto dto);
+		//ValueTask<CommonGrpcResponse> SetUnitsFinishedToday(Guid? userId, UnitsFinishedTodayDto dto);
 	}
 }
