@@ -12,7 +12,8 @@ namespace Service.EducationProgress.Mappers
 			Unit = request.Unit,
 			Task = request.Task,
 			SetUserProgress = newRequestHasResult,
-			Duration = request.Duration
+			Duration = request.Duration,
+			IsRetry = request.IsRetry
 		};
 	}
 }

@@ -26,5 +26,8 @@ namespace Service.EducationProgress.Grpc.ServiceBusModels
 
 		[DataMember(Order = 6)]
 		public TimeSpan Duration { get; set; }
+
+		[DataMember(Order = 7)]
+		public bool IsRetry { get; set; }
 	}
 }
