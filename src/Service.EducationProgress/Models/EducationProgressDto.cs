@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Service.Core.Domain.Models.Education;
+using Service.Core.Client.Education;
 
-namespace Service.EducationProgress.Domain.Models
+namespace Service.EducationProgress.Models
 {
 	public class EducationProgressDto
 	{

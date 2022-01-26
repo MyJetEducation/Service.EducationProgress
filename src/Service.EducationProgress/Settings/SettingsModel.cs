@@ -25,8 +25,5 @@ namespace Service.EducationProgress.Settings
 
         [YamlProperty("EducationProgress.KeyTestTasks100Prc")]
         public string KeyTestTasks100Prc { get; set; }
-
-        //[YamlProperty("EducationProgress.KeyUnitsFinishedToday")]
-        //public string KeyUnitsFinishedToday { get; set; }
     }
 }

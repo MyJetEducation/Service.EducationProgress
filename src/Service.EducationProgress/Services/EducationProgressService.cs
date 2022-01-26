@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
-using Service.Core.Domain.Extensions;
-using Service.Core.Domain.Models.Education;
-using Service.Core.Grpc.Models;
-using Service.EducationProgress.Domain.Models;
+using Service.Core.Client.Education;
+using Service.Core.Client.Extensions;
+using Service.Core.Client.Models;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
 using Service.EducationProgress.Grpc.ServiceBusModels;
 using Service.EducationProgress.Mappers;
+using Service.EducationProgress.Models;
 
 namespace Service.EducationProgress.Services
 {

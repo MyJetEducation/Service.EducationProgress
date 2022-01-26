@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using DotNetCoreDecorators;
 using MyServiceBus.TcpClient;
-using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc.ServiceBusModels;
 using Service.EducationProgress.Services;
 using Service.ServerKeyValue.Client;

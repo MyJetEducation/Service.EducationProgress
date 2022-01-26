@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Service.Core.Grpc.Models;
-using Service.EducationProgress.Domain.Models;
+using Service.Core.Client.Models;
+using Service.EducationProgress.Models;
 
 namespace Service.EducationProgress.Services
 {
@@ -14,9 +14,5 @@ namespace Service.EducationProgress.Services
 		ValueTask<TestTasks100PrcDto> GetTestTasks100Prc(Guid? userId);
 
 		ValueTask<CommonGrpcResponse> SetTestTasks100Prc(Guid? userId, TestTasks100PrcDto prcDto);
-
-		//ValueTask<UnitsFinishedTodayDto> GetUnitsFinishedToday(Guid? userId);
-
-		//ValueTask<CommonGrpcResponse> SetUnitsFinishedToday(Guid? userId, UnitsFinishedTodayDto dto);
 	}
 }

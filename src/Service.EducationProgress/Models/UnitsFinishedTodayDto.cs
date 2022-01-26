@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Service.EducationProgress.Domain.Models
+namespace Service.EducationProgress.Models
 {
 	public class UnitsFinishedTodayDto
 	{

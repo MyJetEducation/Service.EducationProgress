@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Service.Core.Domain.Models.Education;
+using Service.Core.Client.Education;
 
 namespace Service.EducationProgress.Grpc.Models
 {

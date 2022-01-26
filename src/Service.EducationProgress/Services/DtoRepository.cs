@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Service.Core.Grpc.Models;
-using Service.EducationProgress.Domain.Models;
+using Service.Core.Client.Models;
+using Service.EducationProgress.Models;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 
@@ -28,13 +28,6 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<CommonGrpcResponse> SetTestTasks100Prc(Guid? userId, TestTasks100PrcDto prcDto) =>
 			await SetData(Program.ReloadedSettings(model => model.KeyTestTasks100Prc), userId, new[] {prcDto});
-
-		//public async ValueTask<UnitsFinishedTodayDto> GetUnitsFinishedToday(Guid? userId) =>
-		//	(await GetData<UnitsFinishedTodayDto>(Program.ReloadedSettings(model => model.KeyUnitsFinishedToday), userId)).FirstOrDefault()
-		//		?? new UnitsFinishedTodayDto();
-
-		//public async ValueTask<CommonGrpcResponse> SetUnitsFinishedToday(Guid? userId, UnitsFinishedTodayDto dto) =>
-		//	await SetData(Program.ReloadedSettings(model => model.KeyUnitsFinishedToday), userId, new[] {dto});
 
 		private async ValueTask<TDto[]> GetData<TDto>(Func<string> settingsKeyFunc, Guid? userId)
 		{
