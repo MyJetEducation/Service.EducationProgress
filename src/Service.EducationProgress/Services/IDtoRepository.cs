@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Service.Core.Client.Models;
-using Service.EducationProgress.Models;
+using Service.EducationProgress.Domain.Models;
 
 namespace Service.EducationProgress.Services
 {

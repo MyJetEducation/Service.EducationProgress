@@ -1,4 +1,4 @@
-﻿namespace Service.EducationProgress.Models
+﻿namespace Service.EducationProgress.Domain.Models
 {
 	public class TestTasks100PrcDto
 	{

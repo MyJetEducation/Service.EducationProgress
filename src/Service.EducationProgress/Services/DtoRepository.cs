@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Service.Core.Client.Models;
-using Service.EducationProgress.Models;
+using Service.EducationProgress.Domain.Models;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 

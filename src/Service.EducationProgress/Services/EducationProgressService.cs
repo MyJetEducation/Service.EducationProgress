@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 using Service.Core.Client.Education;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
+using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
 using Service.EducationProgress.Grpc.ServiceBusModels;
 using Service.EducationProgress.Mappers;
-using Service.EducationProgress.Models;
 
 namespace Service.EducationProgress.Services
 {

@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using Service.Core.Client.Education;
 
-namespace Service.EducationProgress.Models
+namespace Service.EducationProgress.Domain.Models
 {
 	public class EducationProgressDto
 	{
