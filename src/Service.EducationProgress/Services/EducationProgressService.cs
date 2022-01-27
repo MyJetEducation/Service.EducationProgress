@@ -160,7 +160,7 @@ namespace Service.EducationProgress.Services
 			Guid? userId = request.UserId;
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
-			if (items.IsNullOrEmpty())
+			if (!items.IsNullOrEmpty())
 				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
 
 			EducationProgressDto[] progressDtos = EducationHelper.GetProjections()
