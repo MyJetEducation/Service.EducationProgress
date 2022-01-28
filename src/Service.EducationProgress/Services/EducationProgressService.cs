@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
+using MyJetWallet.Sdk.ServiceBus;
 using Service.Core.Client.Education;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
@@ -18,10 +18,10 @@ namespace Service.EducationProgress.Services
 	public class EducationProgressService : IEducationProgressService
 	{
 		private readonly ILogger<EducationProgressService> _logger;
-		private readonly IPublisher<SetProgressInfoServiceBusModel> _publisher;
+		private readonly IServiceBusPublisher<SetProgressInfoServiceBusModel> _publisher;
 		private readonly IDtoRepository _dtoRepository;
 
-		public EducationProgressService(ILogger<EducationProgressService> logger, IPublisher<SetProgressInfoServiceBusModel> publisher, IDtoRepository dtoRepository)
+		public EducationProgressService(ILogger<EducationProgressService> logger, IServiceBusPublisher<SetProgressInfoServiceBusModel> publisher, IDtoRepository dtoRepository)
 		{
 			_logger = logger;
 			_publisher = publisher;
