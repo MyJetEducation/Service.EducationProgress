@@ -10,8 +10,8 @@ using Service.Core.Client.Models;
 using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
-using Service.EducationProgress.Grpc.ServiceBusModels;
 using Service.EducationProgress.Mappers;
+using Service.ServiceBus.Models;
 
 namespace Service.EducationProgress.Services
 {

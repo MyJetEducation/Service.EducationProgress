@@ -1,9 +1,9 @@
 ﻿using Autofac;
-using DotNetCoreDecorators;
+using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.TcpClient;
-using Service.EducationProgress.Grpc.ServiceBusModels;
 using Service.EducationProgress.Services;
 using Service.ServerKeyValue.Client;
+using Service.ServiceBus.Models;
 
 namespace Service.EducationProgress.Modules
 {
@@ -15,8 +15,12 @@ namespace Service.EducationProgress.Modules
 			builder.RegisterType<DtoRepository>().AsImplementedInterfaces().SingleInstance();
 
 			var tcpServiceBus = new MyServiceBusTcpClient(() => Program.Settings.ServiceBusWriter, "MyJetEducation Service.EducationProgress");
-			IPublisher<SetProgressInfoServiceBusModel> clientRegisterPublisher = new MyServiceBusPublisher(tcpServiceBus);
-			builder.Register(context => clientRegisterPublisher);
+
+			builder
+				.Register(context => new MyServiceBusPublisher<SetProgressInfoServiceBusModel>(tcpServiceBus, SetProgressInfoServiceBusModel.TopicName, false))
+				.As<IServiceBusPublisher<SetProgressInfoServiceBusModel>>()
+				.SingleInstance();
+
 			tcpServiceBus.Start();
 		}
 	}

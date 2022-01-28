@@ -1,5 +1,5 @@
 ﻿using Service.EducationProgress.Grpc.Models;
-using Service.EducationProgress.Grpc.ServiceBusModels;
+using Service.ServiceBus.Models;
 
 namespace Service.EducationProgress.Mappers
 {
