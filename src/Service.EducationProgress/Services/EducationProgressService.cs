@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.ServiceBus;
+using Service.Core.Client.Constants;
 using Service.Core.Client.Education;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
@@ -98,7 +99,7 @@ namespace Service.EducationProgress.Services
 			Guid? userId = request.UserId;
 			int taskScore = request.Value;
 
-			if (taskScore > 100 || taskScore < 0)
+			if (taskScore > AnswerProgress.MaxAnswerProgress || taskScore < 0)
 				return GetFailResponse($"Error while set education progress for user: {userId}, progress value is not valid: {taskScore}.");
 
 			EducationProgressDto[] progressDtos = await _dtoRepository.GetEducationProgress(userId);
@@ -129,7 +130,7 @@ namespace Service.EducationProgress.Services
 				//Только при успешном прохождении таска
 				//Исключаем повторное обновление с попытки
 				//Либо включаем попытку, если до этого результат был не успешный
-				bool newRequestHasResult = taskScore >= 80 && (!request.IsRetry || oldScore < 80);
+				bool newRequestHasResult = taskScore >= AnswerProgress.OkAnswerProgress && (!request.IsRetry || oldScore < AnswerProgress.OkAnswerProgress);
 				await _publisher.PublishAsync(request.ToBusModel(newRequestHasResult));
 			}
 
@@ -143,7 +144,7 @@ namespace Service.EducationProgress.Services
 
 			TestTasks100PrcDto prcDto = await _dtoRepository.GetTestTasks100Prc(userId);
 
-			int newCount = isRetry || taskScore < 80 ? 0 : prcDto.Count + 1;
+			int newCount = isRetry || taskScore < AnswerProgress.OkAnswerProgress ? 0 : prcDto.Count + 1;
 			if (prcDto.Count == newCount) 
 				return;
 
