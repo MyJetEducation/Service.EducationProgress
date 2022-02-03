@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -160,15 +161,21 @@ namespace Service.EducationProgress.Services
 		{
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
-			if (!items.IsNullOrEmpty())
-				return GetFailResponse($"Error while init education progress record in ServerKeyValue storage for user: {userId}, progress already exists.");
+			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId)
+				?? EducationHelper.GetProjections()
+					.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
+					.ToArray();
 
-			EducationProgressDto[] progressDtos = EducationHelper.GetProjections()
-				.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
+			EducationProgressDto[] itemsToInit = items
+				.WhereIf(request.Tutorial != null, dto => dto.Tutorial == request.Tutorial)
+				.WhereIf(request.Unit != null, dto => dto.Unit == request.Unit)
+				.WhereIf(request.Task != null, dto => dto.Task == request.Task)
 				.ToArray();
 
-			return await _dtoRepository.SetEducationProgress(request.UserId, progressDtos);
+			foreach (EducationProgressDto dto in itemsToInit)
+				dto.Clear();
+
+			return await _dtoRepository.SetEducationProgress(request.UserId, items);
 		}
 
 		private CommonGrpcResponse GetFailResponse(string message)
