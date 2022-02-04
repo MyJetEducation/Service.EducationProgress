@@ -160,7 +160,10 @@ namespace Service.EducationProgress.Services
 		{
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
+			EducationProgressDto[] items = null;
+
+			if (request.Tutorial != null)
+				items = await _dtoRepository.GetEducationProgress(userId);
 
 			if (items.IsNullOrEmpty())
 				items = EducationHelper.GetProjections()
