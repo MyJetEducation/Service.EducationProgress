@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -146,7 +145,7 @@ namespace Service.EducationProgress.Services
 			TestTasks100PrcDto prcDto = await _dtoRepository.GetTestTasks100Prc(userId);
 
 			int newCount = isRetry || taskScore < AnswerProgress.OkAnswerProgress ? 0 : prcDto.Count + 1;
-			if (prcDto.Count == newCount) 
+			if (prcDto.Count == newCount)
 				return;
 
 			prcDto.Count = newCount;
@@ -161,8 +160,10 @@ namespace Service.EducationProgress.Services
 		{
 			Guid? userId = request.UserId;
 
-			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId)
-				?? EducationHelper.GetProjections()
+			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
+
+			if (items.IsNullOrEmpty())
+				items = EducationHelper.GetProjections()
 					.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
 					.ToArray();
 
@@ -175,7 +176,7 @@ namespace Service.EducationProgress.Services
 			foreach (EducationProgressDto dto in itemsToInit)
 				dto.Clear();
 
-			return await _dtoRepository.SetEducationProgress(request.UserId, items);
+			return await _dtoRepository.SetEducationProgress(userId, items);
 		}
 
 		private CommonGrpcResponse GetFailResponse(string message)
