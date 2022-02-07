@@ -11,7 +11,7 @@ namespace Service.EducationProgress.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
+			builder.RegisterServerKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
 			builder.RegisterType<DtoRepository>().AsImplementedInterfaces().SingleInstance();
 
 			var tcpServiceBus = new MyServiceBusTcpClient(() => Program.Settings.ServiceBusWriter, "MyJetEducation Service.EducationProgress");
