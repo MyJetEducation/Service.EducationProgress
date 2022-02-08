@@ -11,6 +11,7 @@
     <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.7" />
     <PackageReference Include="MyJetEducation.Service.ServiceBus" Version="1.0.12" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.1.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
   </ItemGroup>
 
   <ItemGroup>
