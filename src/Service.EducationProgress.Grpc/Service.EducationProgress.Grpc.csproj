@@ -5,11 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
+    <PackageReference PrivateAssets="All" Include="System.ServiceModel.Primitives" Version="4.9.0" />
+    <PackageReference PrivateAssets="All" Include="MyJetEducation.Service.Core.Client" Version="1.0.28" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Service.EducationProgress.Domain.Models\Service.EducationProgress.Domain.Models.csproj" />
+    <ProjectReference PrivateAssets="All" Include="..\Service.EducationProgress.Domain.Models\Service.EducationProgress.Domain.Models.csproj" />
   </ItemGroup>
 
 </Project>
