@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Service.Core.Client.Education;
+using Service.Education.Structure;
 
 namespace Service.EducationProgress.Domain.Models
 {
