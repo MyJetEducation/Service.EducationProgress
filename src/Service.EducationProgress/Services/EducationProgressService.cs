@@ -44,7 +44,6 @@ namespace Service.EducationProgress.Services
 			}
 
 			EducationProgressDto[] dtos = FilterProgressData(items, request.Tutorial, request.Unit);
-
 			if (dtos.IsNullOrEmpty())
 			{
 				_logger.LogError("Error while get education progress for user: {userId}, no progress found.", userId);
@@ -78,20 +77,24 @@ namespace Service.EducationProgress.Services
 
 			EducationProgressDto progress = FilterProgressData(items, request.Tutorial, request.Unit, request.Task).FirstOrDefault();
 
-			bool hasProgress = progress is {HasProgress: true};
+			result.Progress = new TaskEducationProgressGrpcModel(progress);
 
-			var resultProgress = new TaskEducationProgressGrpcModel
-			{
-				HasProgress = hasProgress
-			};
+			return result;
+		}
 
-			if (hasProgress)
+		public async ValueTask<UnitEducationProgressGrpcResponse> GetUnitProgressAsync(GetUnitEducationProgressGrpcRequest request)
+		{
+			var result = new UnitEducationProgressGrpcResponse();
+			Guid? userId = request.UserId;
+
+			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
 			{
-				resultProgress.Value = progress.Value.GetValueOrDefault();
-				resultProgress.Date = progress.Date;
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+				return result;
 			}
 
-			result.Progress = resultProgress;
+			result.Progress = items.Select(dto => new TaskEducationProgressGrpcModel(dto)).ToArray();
 
 			return result;
 		}
@@ -189,6 +192,35 @@ namespace Service.EducationProgress.Services
 			_logger.LogError(message);
 
 			return CommonGrpcResponse.Fail;
+		}
+
+		public async ValueTask<TaskTypeProgressGrpcResponse> GetTaskTypeProgressAsync(GetTaskTypeProgressGrpcRequest request)
+		{
+			Guid? userId = request.UserId;
+			int? unit = request.Unit;
+			var result = new TaskTypeProgressGrpcResponse();
+
+			EducationProgressDto[] progressDtos = await _dtoRepository.GetEducationProgress(userId);
+			if (progressDtos.IsNullOrEmpty())
+			{
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+				return result;
+			}
+
+			EducationProgressDto[] tasks = progressDtos
+				.Where(dto => dto.Tutorial == request.Tutorial)
+				.WhereIf(unit != null, dto => dto.Unit == unit)
+				.ToArray();
+
+			result.TaskTypeProgress = tasks
+				.GroupBy(dto => EducationHelper.GetTask(dto.Tutorial, dto.Unit, dto.Task).TaskType, dto => dto.Value)
+				.Select(dto => new TaskTypeProgressGrpcModel
+				{
+					TaskType = dto.Key,
+					Values = dto.Select(i => i.GetValueOrDefault()).ToArray()
+				}).ToArray();
+
+			return result;
 		}
 	}
 }
