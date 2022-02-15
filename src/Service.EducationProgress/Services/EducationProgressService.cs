@@ -84,7 +84,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<UnitEducationProgressGrpcResponse> GetUnitProgressAsync(GetUnitEducationProgressGrpcRequest request)
 		{
-			var result = new UnitEducationProgressGrpcResponse();
+			var result = new UnitEducationProgressGrpcResponse {Unit = request.Unit};
 			Guid? userId = request.UserId;
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
@@ -155,7 +155,7 @@ namespace Service.EducationProgress.Services
 			}
 
 			result.Finished = result.Units.All(model => model.Finished);
-			result.TaskScore = (int)Math.Round((double)(result.Units.Sum(model => model.TaskScore) / result.Units.Count));
+			result.TaskScore = (int) Math.Round((double) (result.Units.Sum(model => model.TaskScore) / result.Units.Count));
 
 			return result;
 		}

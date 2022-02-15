@@ -20,6 +20,7 @@ namespace Service.EducationProgress.Grpc.Models
 
 			Value = progress.Value.GetValueOrDefault();
 			Date = progress.Date;
+			Task = progress.Task;
 		}
 
 		[DataMember(Order = 1)]
