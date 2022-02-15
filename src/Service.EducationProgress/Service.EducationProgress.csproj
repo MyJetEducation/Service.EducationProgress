@@ -10,9 +10,9 @@
     <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.29" />
     <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.8" />
     <PackageReference Include="MyJetEducation.Service.ServiceBus" Version="1.0.13" />
-    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.2.1" />
+    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.2.2" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
-    <PackageReference Include="MyJetEducation.Service.Education" Version="1.0.0" />
+    <PackageReference Include="MyJetEducation.Service.Education" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
