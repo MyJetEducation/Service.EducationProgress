@@ -29,9 +29,6 @@ namespace Service.EducationProgress.Grpc.Models
 		[DataMember(Order = 2)]
 		public bool Finished { get; set; }
 
-		[DataMember(Order = 2)]
-		public bool Available { get; set; }
-
 		[DataMember(Order = 3)]
 		public int TaskScore { get; set; }
 
