@@ -6,6 +6,9 @@ namespace Service.EducationProgress.Grpc.Models
 	public class UnitEducationProgressGrpcResponse
 	{
 		[DataMember(Order = 1)]
+		public int Unit { get; set; }
+
+		[DataMember(Order = 2)]
 		public TaskEducationProgressGrpcModel[] Progress { get; set; }
 	}
 }

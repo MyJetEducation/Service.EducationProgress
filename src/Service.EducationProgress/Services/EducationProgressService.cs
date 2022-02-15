@@ -94,7 +94,93 @@ namespace Service.EducationProgress.Services
 				return result;
 			}
 
-			result.Progress = items.Select(dto => new TaskEducationProgressGrpcModel(dto)).ToArray();
+			result.Progress = items
+				.Where(dto => dto.Tutorial == request.Tutorial)
+				.Where(dto => dto.Unit == request.Unit)
+				.Select(dto => new TaskEducationProgressGrpcModel(dto)).ToArray();
+
+			return result;
+		}
+
+		public async ValueTask<TutorialEducationProgressGrpcResponse> GetTutorialProgressAsync(GetTutorialEducationProgressGrpcRequest request)
+		{
+			Guid? userId = request.UserId;
+			EducationTutorial tutorial = request.Tutorial;
+
+			var result = new TutorialEducationProgressGrpcResponse
+			{
+				Tutorial = tutorial,
+				Progress = new List<ShortUnitEducationProgressGrpcResponse>(5)
+			};
+
+			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
+			{
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+				return result;
+			}
+
+			IGrouping<int, EducationProgressDto>[] groupings = items
+				.Where(dto => dto.Tutorial == tutorial)
+				.GroupBy(dto => dto.Unit, dto => dto)
+				.OrderBy(dto => dto.Key)
+				.ToArray();
+
+			//By units
+			foreach (IGrouping<int, EducationProgressDto> unitDtos in groupings)
+			{
+				var item = new ShortUnitEducationProgressGrpcResponse
+				{
+					Unit = unitDtos.Key,
+					Progress = new List<ShortTaskEducationProgressGrpcModel>(6)
+				};
+
+				//By tasks
+				foreach (EducationProgressDto dto in unitDtos)
+				{
+					item.Progress.Add(new ShortTaskEducationProgressGrpcModel
+					{
+						Task = dto.Task,
+						TaskScore = dto.Value.GetValueOrDefault(),
+						HasProgress = dto.Value != null
+					});
+				}
+
+				item.HasProgress = item.Progress.Any(model => model.HasProgress);
+				item.Finished = item.Progress.All(model => model.HasProgress);
+				item.TaskScore = (int) Math.Round((double) (item.Progress.Sum(model => model.TaskScore) / item.Progress.Count));
+
+				result.Progress.Add(item);
+			}
+
+			result.Finished = result.Progress.All(model => model.Finished);
+			result.TaskScore = (int)Math.Round((double)(result.Progress.Sum(model => model.TaskScore) / result.Progress.Count));
+
+			return result;
+		}
+
+		public async ValueTask<EducationStateProgressGrpcResponse> GetEducationStateProgressAsync(GetEducationStateProgressGrpcRequest request)
+		{
+			Guid? userId = request.UserId;
+
+			var result = new EducationStateProgressGrpcResponse();
+
+			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
+			if (items.IsNullOrEmpty())
+			{
+				_logger.LogError("No education progress record where found in ServerKeyValue storage for user: {userId}", userId);
+				return result;
+			}
+
+			result.Tutorials = items.GroupBy(dto => dto.Tutorial, dto => dto)
+				.Select(dtos => new EducationStateTutorialGrpcModel
+				{
+					Tutorial = dtos.Key,
+					Started = dtos.Any(dto => dto.HasProgress) && dtos.Key == EducationTutorial.PersonalFinance,
+					Finished = dtos.All(dto => dto.HasProgress) && dtos.All(dto => dto.Value.GetValueOrDefault().IsOkProgress())
+				})
+				.OrderBy(arg => arg.Tutorial)
+				.ToArray();
 
 			return result;
 		}

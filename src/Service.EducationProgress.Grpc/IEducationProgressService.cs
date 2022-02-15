@@ -31,6 +31,18 @@ namespace Service.EducationProgress.Grpc
 		/// </summary>
 		[OperationContract]
 		ValueTask<UnitEducationProgressGrpcResponse> GetUnitProgressAsync(GetUnitEducationProgressGrpcRequest request);
+		
+		/// <summary>
+		///     Progress info for tutorial units
+		/// </summary>
+		[OperationContract]
+		ValueTask<TutorialEducationProgressGrpcResponse> GetTutorialProgressAsync(GetTutorialEducationProgressGrpcRequest request);
+		
+		/// <summary>
+		///     Progress info for all tutorials
+		/// </summary>
+		[OperationContract]
+		ValueTask<EducationStateProgressGrpcResponse> GetEducationStateProgressAsync(GetEducationStateProgressGrpcRequest request);
 
 		/// <summary>
 		///     Save progress info
