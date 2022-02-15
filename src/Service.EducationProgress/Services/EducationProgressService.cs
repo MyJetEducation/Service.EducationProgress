@@ -110,7 +110,7 @@ namespace Service.EducationProgress.Services
 			var result = new TutorialEducationProgressGrpcResponse
 			{
 				Tutorial = tutorial,
-				Progress = new List<ShortUnitEducationProgressGrpcResponse>(5)
+				Units = new List<ShortUnitEducationProgressGrpcResponse>(5)
 			};
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
@@ -132,29 +132,30 @@ namespace Service.EducationProgress.Services
 				var item = new ShortUnitEducationProgressGrpcResponse
 				{
 					Unit = unitDtos.Key,
-					Progress = new List<ShortTaskEducationProgressGrpcModel>(6)
+					Tasks = new List<ShortTaskEducationProgressGrpcModel>(6)
 				};
 
 				//By tasks
 				foreach (EducationProgressDto dto in unitDtos)
 				{
-					item.Progress.Add(new ShortTaskEducationProgressGrpcModel
+					item.Tasks.Add(new ShortTaskEducationProgressGrpcModel
 					{
 						Task = dto.Task,
 						TaskScore = dto.Value.GetValueOrDefault(),
-						HasProgress = dto.Value != null
+						HasProgress = dto.Value != null,
+						Date = dto.Date
 					});
 				}
 
-				item.HasProgress = item.Progress.Any(model => model.HasProgress);
-				item.Finished = item.Progress.All(model => model.HasProgress);
-				item.TaskScore = (int) Math.Round((double) (item.Progress.Sum(model => model.TaskScore) / item.Progress.Count));
+				item.HasProgress = item.Tasks.Any(model => model.HasProgress);
+				item.Finished = item.Tasks.All(model => model.HasProgress);
+				item.TaskScore = (int) Math.Round((double) (item.Tasks.Sum(model => model.TaskScore) / item.Tasks.Count));
 
-				result.Progress.Add(item);
+				result.Units.Add(item);
 			}
 
-			result.Finished = result.Progress.All(model => model.Finished);
-			result.TaskScore = (int)Math.Round((double)(result.Progress.Sum(model => model.TaskScore) / result.Progress.Count));
+			result.Finished = result.Units.All(model => model.Finished);
+			result.TaskScore = (int)Math.Round((double)(result.Units.Sum(model => model.TaskScore) / result.Units.Count));
 
 			return result;
 		}

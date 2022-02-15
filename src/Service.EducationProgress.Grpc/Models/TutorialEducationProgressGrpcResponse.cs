@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Service.Education.Structure;
 
@@ -17,7 +18,7 @@ namespace Service.EducationProgress.Grpc.Models
 		public int TaskScore { get; set; }
 
 		[DataMember(Order = 4)]
-		public List<ShortUnitEducationProgressGrpcResponse> Progress { get; set; }
+		public List<ShortUnitEducationProgressGrpcResponse> Units { get; set; }
 	}
 
 	[DataContract]
@@ -36,7 +37,7 @@ namespace Service.EducationProgress.Grpc.Models
 		public bool HasProgress { get; set; }
 
 		[DataMember(Order = 5)]
-		public List<ShortTaskEducationProgressGrpcModel> Progress { get; set; }
+		public List<ShortTaskEducationProgressGrpcModel> Tasks { get; set; }
 	}
 
 	[DataContract]
@@ -50,5 +51,8 @@ namespace Service.EducationProgress.Grpc.Models
 
 		[DataMember(Order = 3)]
 		public int Task { get; set; }
+
+		[DataMember(Order = 4)]
+		public DateTime? Date { get; set; }
 	}
 }
