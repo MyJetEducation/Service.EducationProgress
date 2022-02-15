@@ -10,6 +10,7 @@ namespace Service.EducationProgress.Grpc.Models
 		public EducationStateTutorialGrpcModel[] Tutorials { get; set; }
 	}
 
+	[DataContract]
 	public class EducationStateTutorialGrpcModel
 	{
 		[DataMember(Order = 1)]
