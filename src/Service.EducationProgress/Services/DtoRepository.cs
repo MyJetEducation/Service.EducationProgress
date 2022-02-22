@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Service.Core.Client.Models;
 using Service.EducationProgress.Domain.Models;
+using Service.Grpc;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 
@@ -12,9 +13,9 @@ namespace Service.EducationProgress.Services
 {
 	public class DtoRepository : IDtoRepository
 	{
-		private readonly IServerKeyValueService _serverKeyValueService;
+		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
-		public DtoRepository(IServerKeyValueService serverKeyValueService) => _serverKeyValueService = serverKeyValueService;
+		public DtoRepository(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService) => _serverKeyValueService = serverKeyValueService;
 
 		public async ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId) =>
 			await GetData<EducationProgressDto>(Program.ReloadedSettings(model => model.KeyEducationProgress), userId);
@@ -31,7 +32,7 @@ namespace Service.EducationProgress.Services
 
 		private async ValueTask<TDto[]> GetData<TDto>(Func<string> settingsKeyFunc, Guid? userId)
 		{
-			string value = (await _serverKeyValueService.GetSingle(new ItemsGetSingleGrpcRequest
+			string value = (await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
 				UserId = userId,
 				Key = settingsKeyFunc.Invoke()
@@ -42,7 +43,7 @@ namespace Service.EducationProgress.Services
 				: JsonSerializer.Deserialize<TDto[]>(value);
 		}
 
-		private async ValueTask<CommonGrpcResponse> SetData<TDto>(Func<string> settingsKeyFunc, Guid? userId, IEnumerable<TDto> dtos) => await _serverKeyValueService.Put(new ItemsPutGrpcRequest
+		private async ValueTask<CommonGrpcResponse> SetData<TDto>(Func<string> settingsKeyFunc, Guid? userId, IEnumerable<TDto> dtos) => await _serverKeyValueService.TryCall(service => service.Put(new ItemsPutGrpcRequest
 		{
 			UserId = userId,
 			Items = new[]
@@ -53,6 +54,6 @@ namespace Service.EducationProgress.Services
 					Value = JsonSerializer.Serialize(dtos)
 				}
 			}
-		});
+		}));
 	}
 }

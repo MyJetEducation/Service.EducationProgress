@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.TcpClient;
 using Service.EducationProgress.Services;
@@ -11,7 +12,8 @@ namespace Service.EducationProgress.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterServerKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
+			builder.RegisterServerKeyValueClient(Program.Settings.ServerKeyValueServiceUrl, Program.LogFactory.CreateLogger(typeof(ServerKeyValueClientFactory)));
+
 			builder.RegisterType<DtoRepository>().AsImplementedInterfaces().SingleInstance();
 
 			var tcpServiceBus = new MyServiceBusTcpClient(() => Program.Settings.ServiceBusWriter, "MyJetEducation Service.EducationProgress");
