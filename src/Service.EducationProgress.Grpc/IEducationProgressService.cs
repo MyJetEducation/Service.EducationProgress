@@ -13,7 +13,7 @@ namespace Service.EducationProgress.Grpc
 		/// </summary>
 		[OperationContract]
 		ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request);
-
+		
 		/// <summary>
 		///     Progress info for single task
 		/// </summary>

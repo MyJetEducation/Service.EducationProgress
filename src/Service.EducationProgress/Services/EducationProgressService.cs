@@ -35,7 +35,7 @@ namespace Service.EducationProgress.Services
 		{
 			var result = new EducationProgressGrpcResponse();
 			Guid? userId = request.UserId;
-
+			
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
 			if (items.IsNullOrEmpty())
 			{
@@ -53,6 +53,12 @@ namespace Service.EducationProgress.Services
 			result.Value = (int) Math.Round(dtos
 				.Select(val => val.Value.GetValueOrDefault())
 				.ToArray().Average());
+
+			result.TutorialsPassed = dtos
+				.GroupBy(dto => dto.Tutorial, dto => dto.Value.GetValueOrDefault())
+				.Count(value => value.All(val => val.IsOkProgress()));
+
+			result.TasksPassed = dtos.Count(dto => dto.Value.GetValueOrDefault().IsOkProgress());
 
 			return result;
 		}
