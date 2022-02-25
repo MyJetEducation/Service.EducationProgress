@@ -184,7 +184,7 @@ namespace Service.EducationProgress.Services
 				{
 					Tutorial = dtos.Key,
 					Started = dtos.Any(dto => dto.HasProgress) && dtos.Key == EducationTutorial.PersonalFinance,
-					Finished = dtos.All(dto => dto.HasProgress) && dtos.All(dto => dto.Value.GetValueOrDefault().IsOkProgress())
+					Finished = dtos.All(dto => dto.HasProgress) && ((int) Math.Round(dtos.Average(dto => dto.Value.GetValueOrDefault()))).IsOkProgress()
 				})
 				.OrderBy(arg => arg.Tutorial)
 				.ToArray();
