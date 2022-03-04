@@ -24,7 +24,9 @@ namespace Service.EducationProgress.Services
 		private readonly IServiceBusPublisher<SetProgressInfoServiceBusModel> _publisher;
 		private readonly IDtoRepository _dtoRepository;
 
-		public EducationProgressService(ILogger<EducationProgressService> logger, IServiceBusPublisher<SetProgressInfoServiceBusModel> publisher, IDtoRepository dtoRepository)
+		public EducationProgressService(ILogger<EducationProgressService> logger, 
+			IServiceBusPublisher<SetProgressInfoServiceBusModel> publisher, 
+			IDtoRepository dtoRepository)
 		{
 			_logger = logger;
 			_publisher = publisher;
@@ -35,7 +37,7 @@ namespace Service.EducationProgress.Services
 		{
 			var result = new EducationProgressGrpcResponse();
 			Guid? userId = request.UserId;
-			
+
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
 			if (items.IsNullOrEmpty())
 			{
@@ -43,22 +45,18 @@ namespace Service.EducationProgress.Services
 				return result;
 			}
 
-			EducationProgressDto[] dtos = FilterProgressData(items, request.Tutorial, request.Unit);
-			if (dtos.IsNullOrEmpty())
+			EducationProgressDto[] progressDtos = FilterProgressData(items, request.Tutorial, request.Unit);
+			if (progressDtos.IsNullOrEmpty())
 			{
 				_logger.LogError("Error while get education progress for user: {userId}, no progress found.", userId);
 				return result;
 			}
 
-			result.Value = (int) Math.Round(dtos
-				.Select(val => val.Value.GetValueOrDefault())
-				.ToArray().Average());
-
-			result.TutorialsPassed = dtos
-				.GroupBy(dto => dto.Tutorial, dto => dto.Value.GetValueOrDefault())
-				.Count(value => value.All(val => val.IsOkProgress()));
-
-			result.TasksPassed = dtos.Count(dto => dto.Value.GetValueOrDefault().IsOkProgress());
+			result.Value = progressDtos.CountProgress();
+			result.TasksPassed = progressDtos.Count(dto => dto.GetValue().IsOkProgress());
+			result.TutorialsPassed = progressDtos
+				.GroupBy(dto => dto.Tutorial, dto => dto)
+				.Count(value => value.ToArray().IsPassed());
 
 			return result;
 		}
@@ -135,33 +133,38 @@ namespace Service.EducationProgress.Services
 			//By units
 			foreach (IGrouping<int, EducationProgressDto> unitDtos in groupings)
 			{
-				var item = new ShortUnitEducationProgressGrpcResponse
+				var unitItem = new ShortUnitEducationProgressGrpcResponse
 				{
 					Unit = unitDtos.Key,
 					Tasks = new List<ShortTaskEducationProgressGrpcModel>(6)
 				};
 
+				var taskTrueFalseProgressValues = new List<int>();
+
 				//By tasks
 				foreach (EducationProgressDto dto in unitDtos)
 				{
-					item.Tasks.Add(new ShortTaskEducationProgressGrpcModel
+					unitItem.Tasks.Add(new ShortTaskEducationProgressGrpcModel
 					{
 						Task = dto.Task,
-						TaskScore = dto.Value.GetValueOrDefault(),
-						HasProgress = dto.Value != null,
+						TaskScore = dto.GetValue(),
+						HasProgress = dto.HasProgress,
 						Date = dto.Date
 					});
+
+					if (dto.IsProgressTask())
+						taskTrueFalseProgressValues.Add(dto.GetValue());
 				}
 
-				item.HasProgress = item.Tasks.Any(model => model.HasProgress);
-				item.Finished = item.Tasks.All(model => model.HasProgress);
-				item.TaskScore = (int) Math.Round((double) (item.Tasks.Sum(model => model.TaskScore) / item.Tasks.Count));
+				unitItem.HasProgress = unitItem.Tasks.Any(model => model.HasProgress);
+				unitItem.Finished = unitItem.Tasks.All(model => model.HasProgress);
+				unitItem.TaskScore = (int) Math.Round(taskTrueFalseProgressValues.Average());
 
-				result.Units.Add(item);
+				result.Units.Add(unitItem);
 			}
 
 			result.Finished = result.Units.All(model => model.Finished);
-			result.TaskScore = (int) Math.Round((double) (result.Units.Sum(model => model.TaskScore) / result.Units.Count));
+			result.TaskScore = (int) Math.Round(result.Units.Average(unit => unit.TaskScore));
 
 			return result;
 		}
@@ -183,8 +186,8 @@ namespace Service.EducationProgress.Services
 				.Select(dtos => new EducationStateTutorialGrpcModel
 				{
 					Tutorial = dtos.Key,
-					Started = dtos.Any(dto => dto.HasProgress) && dtos.Key == EducationTutorial.PersonalFinance,
-					Finished = dtos.All(dto => dto.HasProgress) && ((int) Math.Round(dtos.Average(dto => dto.Value.GetValueOrDefault()))).IsOkProgress()
+					Started = dtos.HasProgress() || dtos.Key == EducationTutorial.PersonalFinance,
+					Finished = dtos.IsPassed()
 				})
 				.OrderBy(arg => arg.Tutorial)
 				.ToArray();
@@ -237,7 +240,7 @@ namespace Service.EducationProgress.Services
 
 		private async void SaveTestTasks100Prc(EducationProgressDto task, Guid? userId, bool isRetry, int taskScore)
 		{
-			if (EducationHelper.GetTask(task.Tutorial, task.Unit, task.Task).TaskType != EducationTaskType.Test)
+			if (task.GetTaskType() != EducationTaskType.Test)
 				return;
 
 			TestTasks100PrcDto prcDto = await _dtoRepository.GetTestTasks100Prc(userId);
@@ -306,11 +309,11 @@ namespace Service.EducationProgress.Services
 				.ToArray();
 
 			result.TaskTypeProgress = tasks
-				.GroupBy(dto => EducationHelper.GetTask(dto.Tutorial, dto.Unit, dto.Task).TaskType, dto => dto.Value)
+				.GroupBy(dto => dto.GetTaskType(), dto => dto.GetValue())
 				.Select(dto => new TaskTypeProgressGrpcModel
 				{
 					TaskType = dto.Key,
-					Values = dto.Select(i => i.GetValueOrDefault()).ToArray()
+					Values = dto.ToArray()
 				}).ToArray();
 
 			return result;

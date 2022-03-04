@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Service.Education.Constants;
+using Service.Education.Helpers;
 using Service.Education.Structure;
 
 namespace Service.EducationProgress.Domain.Models
@@ -30,6 +32,14 @@ namespace Service.EducationProgress.Domain.Models
 
 		[JsonIgnore]
 		public bool HasProgress => Value != null;
+
+		public int GetValue()
+		{
+			if (HasProgress && EducationHelper.GetTask(Tutorial, Unit, Task).TaskType == EducationTaskType.Case)
+				return Progress.MaxProgress;
+
+			return Value.GetValueOrDefault();
+		}
 
 		public void Clear()
 		{
