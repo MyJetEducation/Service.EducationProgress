@@ -157,7 +157,7 @@ namespace Service.EducationProgress.Services
 				}
 
 				unitItem.HasProgress = unitItem.Tasks.Any(model => model.HasProgress);
-				unitItem.Finished = unitItem.Tasks.All(model => model.HasProgress);
+				unitItem.Finished = unitItem.Tasks.All(model => model.TaskScore.IsOkProgress());
 				unitItem.TaskScore = (int) Math.Round(taskTrueFalseProgressValues.Average());
 
 				result.Units.Add(unitItem);
