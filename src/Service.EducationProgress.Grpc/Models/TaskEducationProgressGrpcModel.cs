@@ -18,7 +18,7 @@ namespace Service.EducationProgress.Grpc.Models
 			if (progress is not { HasProgress: true }) 
 				return;
 
-			Value = progress.Value.GetValueOrDefault();
+			Value = progress.GetValue();
 			Date = progress.Date;
 			Task = progress.Task;
 		}
