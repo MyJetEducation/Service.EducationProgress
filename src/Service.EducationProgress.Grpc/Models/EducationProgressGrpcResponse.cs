@@ -6,12 +6,15 @@ namespace Service.EducationProgress.Grpc.Models
 	public class EducationProgressGrpcResponse
 	{
 		[DataMember(Order = 1)]
-		public int Value { get; set; }
+		public int TaskScore { get; set; }
 
 		[DataMember(Order = 2)]
-		public int TutorialsPassed { get; set; }
+		public int TestScore { get; set; }
 
 		[DataMember(Order = 3)]
+		public int TutorialsPassed { get; set; }
+
+		[DataMember(Order = 4)]
 		public int TasksPassed { get; set; }
 	}
 }

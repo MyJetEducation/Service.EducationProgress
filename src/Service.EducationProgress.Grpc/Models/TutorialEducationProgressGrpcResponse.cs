@@ -44,7 +44,7 @@ namespace Service.EducationProgress.Grpc.Models
 	public class ShortTaskEducationProgressGrpcModel
 	{
 		[DataMember(Order = 1)]
-		public int TaskScore { get; set; }
+		public int Value { get; set; }
 
 		[DataMember(Order = 2)]
 		public bool HasProgress { get; set; }

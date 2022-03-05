@@ -52,7 +52,8 @@ namespace Service.EducationProgress.Services
 				return result;
 			}
 
-			result.Value = progressDtos.CountProgress();
+			result.TestScore = progressDtos.CountTestScore();
+			result.TaskScore = progressDtos.CountTaskScore();
 			result.TasksPassed = progressDtos.Count(dto => dto.GetValue().IsOkProgress());
 			result.TutorialsPassed = progressDtos
 				.GroupBy(dto => dto.Tutorial, dto => dto)
@@ -139,26 +140,21 @@ namespace Service.EducationProgress.Services
 					Tasks = new List<ShortTaskEducationProgressGrpcModel>(6)
 				};
 
-				var taskTrueFalseProgressValues = new List<int>();
-
 				//By tasks
 				foreach (EducationProgressDto dto in unitDtos)
 				{
 					unitItem.Tasks.Add(new ShortTaskEducationProgressGrpcModel
 					{
 						Task = dto.Task,
-						TaskScore = dto.GetValue(),
+						Value = dto.GetValue(),
 						HasProgress = dto.HasProgress,
 						Date = dto.Date
 					});
-
-					if (dto.IsProgressTask())
-						taskTrueFalseProgressValues.Add(dto.GetValue());
 				}
 
 				unitItem.HasProgress = unitItem.Tasks.Any(model => model.HasProgress);
-				unitItem.Finished = unitItem.Tasks.All(model => model.TaskScore.IsOkProgress());
-				unitItem.TaskScore = (int) Math.Round(taskTrueFalseProgressValues.Average());
+				unitItem.Finished = unitItem.Tasks.All(model => model.Value.IsOkProgress());
+				unitItem.TaskScore = unitDtos.ToArray().CountTaskScore();
 
 				result.Units.Add(unitItem);
 			}
