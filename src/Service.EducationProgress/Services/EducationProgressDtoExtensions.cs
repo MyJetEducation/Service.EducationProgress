@@ -30,7 +30,7 @@ namespace Service.EducationProgress.Services
 			if (!dtos.Any())
 				return 0;
 
-			EducationProgressDto[] testDtos = dtos.Where(IsTestTask).ToArray();
+			EducationProgressDto[] testDtos = dtos.Where(dto => dto.HasProgress && IsTestTask(dto)).ToArray();
 
 			return testDtos.Any()
 				? (int) Math.Round(testDtos.Average(dto => dto.GetValue()))
