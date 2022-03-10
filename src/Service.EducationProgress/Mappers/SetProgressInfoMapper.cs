@@ -5,7 +5,7 @@ namespace Service.EducationProgress.Mappers
 {
 	public static class SetProgressInfoMapper
 	{
-		public static SetProgressInfoServiceBusModel ToBusModel(this SetEducationProgressGrpcRequest request, bool newRequestHasResult) => new SetProgressInfoServiceBusModel
+		public static SetProgressInfoServiceBusModel ToBusModel(this SetEducationProgressGrpcRequest request, bool newRequestHasResult, int taskScore) => new SetProgressInfoServiceBusModel
 		{
 			UserId = request.UserId,
 			Tutorial = request.Tutorial,
@@ -13,7 +13,8 @@ namespace Service.EducationProgress.Mappers
 			Task = request.Task,
 			SetUserProgress = newRequestHasResult,
 			Duration = request.Duration,
-			IsRetry = request.IsRetry
+			IsRetry = request.IsRetry,
+			Progress = taskScore
 		};
 	}
 }

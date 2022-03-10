@@ -228,7 +228,7 @@ namespace Service.EducationProgress.Services
 				//Исключаем повторное обновление с попытки
 				//Либо включаем попытку, если до этого результат был не успешный
 				bool newRequestHasResult = taskScore >= Progress.OkProgress && (!request.IsRetry || oldScore < Progress.OkProgress);
-				await _publisher.PublishAsync(request.ToBusModel(newRequestHasResult));
+				await _publisher.PublishAsync(request.ToBusModel(newRequestHasResult, taskScore));
 			}
 
 			return commonGrpcResponse;
