@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Service.Core.Client.Extensions;
 using Service.Education.Extensions;
 using Service.Education.Helpers;
 using Service.Education.Structure;
@@ -13,9 +14,7 @@ namespace Service.EducationProgress.Services
 
 		public static bool IsPassed(this IGrouping<EducationTutorial, EducationProgressDto> grouping) => grouping.ToArray().IsPassed();
 
-		public static bool AllHasProgress(this EducationProgressDto[] dtos) => dtos.All(dto => dto.HasProgress);
-
-		public static bool AllHasProgress(this IGrouping<EducationTutorial, EducationProgressDto> grouping) => grouping.ToArray().AllHasProgress();
+		public static bool AllHasProgress(this EducationProgressDto[] dtos) => dtos.ForAll(dto => dto.HasProgress);
 
 		public static bool HasProgress(this EducationProgressDto[] dtos) => dtos.Any(dto => dto.HasProgress);
 

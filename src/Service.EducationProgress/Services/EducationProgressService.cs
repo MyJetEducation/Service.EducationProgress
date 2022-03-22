@@ -57,7 +57,7 @@ namespace Service.EducationProgress.Services
 			result.TasksPassed = progressDtos.Count(dto => dto.GetValue().IsOkProgress());
 			result.TutorialsPassed = progressDtos
 				.GroupBy(dto => dto.Tutorial, dto => dto)
-				.Count(value => value.ToArray().IsPassed());
+				.Count(value => value.IsPassed());
 
 			return result;
 		}
