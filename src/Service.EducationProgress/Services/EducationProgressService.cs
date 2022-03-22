@@ -153,13 +153,13 @@ namespace Service.EducationProgress.Services
 				}
 
 				unitItem.HasProgress = unitItem.Tasks.Any(model => model.HasProgress);
-				unitItem.Finished = unitItem.Tasks.All(model => model.Value.IsOkProgress());
+				unitItem.Finished = unitItem.Tasks.ForAll(model => model.Value.IsOkProgress());
 				unitItem.TaskScore = unitDtos.ToArray().CountTaskScore();
 
 				result.Units.Add(unitItem);
 			}
 
-			result.Finished = result.Units.All(model => model.Finished);
+			result.Finished = result.Units.ForAll(model => model.Finished);
 			result.TaskScore = (int) Math.Round(result.Units.Average(unit => unit.TaskScore));
 
 			return result;
