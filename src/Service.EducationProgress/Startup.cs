@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using MyJetWallet.Sdk.GrpcSchema;
 using MyJetWallet.Sdk.Service;
 using Prometheus;
+using Service.Core.Client.Constants;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Modules;
 using Service.EducationProgress.Services;
@@ -21,7 +22,7 @@ namespace Service.EducationProgress
         {
             services.BindCodeFirstGrpc();
             services.AddHostedService<ApplicationLifetimeManager>();
-            services.AddMyTelemetry("ED-", Program.Settings.ZipkinUrl);
+            services.AddMyTelemetry(Configuration.TelemetryPrefix, Program.Settings.ZipkinUrl);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -37,9 +38,7 @@ namespace Service.EducationProgress
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcSchema<EducationProgressService, IEducationProgressService>();
-
                 endpoints.MapGrpcSchemaRegistry();
-
                 endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909"); });
             });
         }

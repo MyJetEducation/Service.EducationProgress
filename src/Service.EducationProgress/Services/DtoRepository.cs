@@ -19,7 +19,7 @@ namespace Service.EducationProgress.Services
 
 		public DtoRepository(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService) => _serverKeyValueService = serverKeyValueService;
 
-		public async ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId)
+		public async ValueTask<EducationProgressDto[]> GetEducationProgress(string userId)
 		{
 			EducationProgressDto[] dtos = await GetData<EducationProgressDto>(Program.ReloadedSettings(model => model.KeyEducationProgress), userId);
 
@@ -32,17 +32,17 @@ namespace Service.EducationProgress.Services
 			.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
 			.ToArray();
 
-		public async ValueTask<CommonGrpcResponse> SetEducationProgress(Guid? userId, EducationProgressDto[] prcDtos) =>
+		public async ValueTask<CommonGrpcResponse> SetEducationProgress(string userId, EducationProgressDto[] prcDtos) =>
 			await SetData(Program.ReloadedSettings(model => model.KeyEducationProgress), userId, prcDtos);
 
-		public async ValueTask<TestTasks100PrcDto> GetTestTasks100Prc(Guid? userId) =>
+		public async ValueTask<TestTasks100PrcDto> GetTestTasks100Prc(string userId) =>
 			(await GetData<TestTasks100PrcDto>(Program.ReloadedSettings(model => model.KeyTestTasks100Prc), userId)).FirstOrDefault()
 				?? new TestTasks100PrcDto();
 
-		public async ValueTask<CommonGrpcResponse> SetTestTasks100Prc(Guid? userId, TestTasks100PrcDto prcDto) =>
+		public async ValueTask<CommonGrpcResponse> SetTestTasks100Prc(string userId, TestTasks100PrcDto prcDto) =>
 			await SetData(Program.ReloadedSettings(model => model.KeyTestTasks100Prc), userId, new[] {prcDto});
 
-		private async ValueTask<TDto[]> GetData<TDto>(Func<string> settingsKeyFunc, Guid? userId)
+		private async ValueTask<TDto[]> GetData<TDto>(Func<string> settingsKeyFunc, string userId)
 		{
 			string value = (await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
@@ -55,7 +55,7 @@ namespace Service.EducationProgress.Services
 				: JsonSerializer.Deserialize<TDto[]>(value);
 		}
 
-		private async ValueTask<CommonGrpcResponse> SetData<TDto>(Func<string> settingsKeyFunc, Guid? userId, IEnumerable<TDto> dtos) => await _serverKeyValueService.TryCall(service => service.Put(new ItemsPutGrpcRequest
+		private async ValueTask<CommonGrpcResponse> SetData<TDto>(Func<string> settingsKeyFunc, string userId, IEnumerable<TDto> dtos) => await _serverKeyValueService.TryCall(service => service.Put(new ItemsPutGrpcRequest
 		{
 			UserId = userId,
 			Items = new[]

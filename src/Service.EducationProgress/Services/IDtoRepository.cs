@@ -7,12 +7,12 @@ namespace Service.EducationProgress.Services
 {
 	public interface IDtoRepository
 	{
-		ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId);
+		ValueTask<EducationProgressDto[]> GetEducationProgress(string userId);
 
-		ValueTask<CommonGrpcResponse> SetEducationProgress(Guid? userId, EducationProgressDto[] prcDtos);
+		ValueTask<CommonGrpcResponse> SetEducationProgress(string userId, EducationProgressDto[] prcDtos);
 
-		ValueTask<TestTasks100PrcDto> GetTestTasks100Prc(Guid? userId);
+		ValueTask<TestTasks100PrcDto> GetTestTasks100Prc(string userId);
 
-		ValueTask<CommonGrpcResponse> SetTestTasks100Prc(Guid? userId, TestTasks100PrcDto prcDto);
+		ValueTask<CommonGrpcResponse> SetTestTasks100Prc(string userId, TestTasks100PrcDto prcDto);
 	}
 }

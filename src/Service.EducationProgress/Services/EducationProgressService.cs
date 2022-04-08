@@ -35,7 +35,7 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request)
 		{
 			var result = new EducationProgressGrpcResponse();
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
 			if (items.IsNullOrEmpty())
@@ -70,7 +70,7 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<TaskEducationProgressGrpcResponse> GetTaskProgressAsync(GetTaskEducationProgressGrpcRequest request)
 		{
 			var result = new TaskEducationProgressGrpcResponse();
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
 			if (items.IsNullOrEmpty())
@@ -89,7 +89,7 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<UnitEducationProgressGrpcResponse> GetUnitProgressAsync(GetUnitEducationProgressGrpcRequest request)
 		{
 			var result = new UnitEducationProgressGrpcResponse {Unit = request.Unit};
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 
 			EducationProgressDto[] items = await _dtoRepository.GetEducationProgress(userId);
 			if (items.IsNullOrEmpty())
@@ -108,7 +108,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<TutorialEducationProgressGrpcResponse> GetTutorialProgressAsync(GetTutorialEducationProgressGrpcRequest request)
 		{
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 			EducationTutorial tutorial = request.Tutorial;
 
 			var result = new TutorialEducationProgressGrpcResponse
@@ -166,7 +166,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<EducationStateProgressGrpcResponse> GetEducationStateProgressAsync(GetEducationStateProgressGrpcRequest request)
 		{
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 
 			var result = new EducationStateProgressGrpcResponse();
 
@@ -192,7 +192,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<CommonGrpcResponse> SetProgressAsync(SetEducationProgressGrpcRequest request)
 		{
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 			int taskScore = request.Value;
 
 			if (taskScore > Progress.MaxProgress || taskScore < 0)
@@ -233,7 +233,7 @@ namespace Service.EducationProgress.Services
 			return commonGrpcResponse;
 		}
 
-		private async void SaveTestTasks100Prc(EducationProgressDto task, Guid? userId, bool isRetry, int taskScore)
+		private async void SaveTestTasks100Prc(EducationProgressDto task, string userId, bool isRetry, int taskScore)
 		{
 			if (task.GetTaskType() != EducationTaskType.Test)
 				return;
@@ -254,7 +254,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<CommonGrpcResponse> InitProgressAsync(InitEducationProgressGrpcRequest request)
 		{
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 			EducationProgressDto[] items;
 
 			if (request.Tutorial == null)
@@ -263,14 +263,14 @@ namespace Service.EducationProgress.Services
 			{
 				items = await _dtoRepository.GetEducationProgress(userId);
 
-				EducationProgressDto[] itemsToInit = items
+			EducationProgressDto[] itemsToInit = items
 					.Where(dto => dto.Tutorial == request.Tutorial)
-					.WhereIf(request.Unit != null, dto => dto.Unit == request.Unit)
-					.WhereIf(request.Task != null, dto => dto.Task == request.Task)
-					.ToArray();
+				.WhereIf(request.Unit != null, dto => dto.Unit == request.Unit)
+				.WhereIf(request.Task != null, dto => dto.Task == request.Task)
+				.ToArray();
 
-				foreach (EducationProgressDto dto in itemsToInit)
-					dto.Clear();
+			foreach (EducationProgressDto dto in itemsToInit)
+				dto.Clear();
 			}
 
 			return await _dtoRepository.SetEducationProgress(userId, items);
@@ -285,7 +285,7 @@ namespace Service.EducationProgress.Services
 
 		public async ValueTask<TaskTypeProgressGrpcResponse> GetTaskTypeProgressAsync(GetTaskTypeProgressGrpcRequest request)
 		{
-			Guid? userId = request.UserId;
+			string userId = request.UserId;
 			int? unit = request.Unit;
 			var result = new TaskTypeProgressGrpcResponse();
 
