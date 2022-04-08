@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
+using Service.Education.Helpers;
 using Service.EducationProgress.Domain.Models;
 using Service.Grpc;
 using Service.ServerKeyValue.Grpc;
@@ -17,8 +19,18 @@ namespace Service.EducationProgress.Services
 
 		public DtoRepository(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService) => _serverKeyValueService = serverKeyValueService;
 
-		public async ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId) =>
-			await GetData<EducationProgressDto>(Program.ReloadedSettings(model => model.KeyEducationProgress), userId);
+		public async ValueTask<EducationProgressDto[]> GetEducationProgress(Guid? userId)
+		{
+			EducationProgressDto[] dtos = await GetData<EducationProgressDto>(Program.ReloadedSettings(model => model.KeyEducationProgress), userId);
+
+			return dtos.IsNullOrEmpty()
+				? GetEmptyProgress()
+				: dtos;
+		}
+
+		public static EducationProgressDto[] GetEmptyProgress() => EducationHelper.GetProjections()
+			.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
+			.ToArray();
 
 		public async ValueTask<CommonGrpcResponse> SetEducationProgress(Guid? userId, EducationProgressDto[] prcDtos) =>
 			await SetData(Program.ReloadedSettings(model => model.KeyEducationProgress), userId, prcDtos);

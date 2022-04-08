@@ -8,7 +8,6 @@ using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Constants;
 using Service.Education.Extensions;
-using Service.Education.Helpers;
 using Service.Education.Structure;
 using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc;
@@ -256,25 +255,23 @@ namespace Service.EducationProgress.Services
 		public async ValueTask<CommonGrpcResponse> InitProgressAsync(InitEducationProgressGrpcRequest request)
 		{
 			Guid? userId = request.UserId;
+			EducationProgressDto[] items;
 
-			EducationProgressDto[] items = null;
-
-			if (request.Tutorial != null)
+			if (request.Tutorial == null)
+				items = DtoRepository.GetEmptyProgress();
+			else
+			{
 				items = await _dtoRepository.GetEducationProgress(userId);
 
-			if (items.IsNullOrEmpty())
-				items = EducationHelper.GetProjections()
-					.Select(item => new EducationProgressDto(item.Tutorial, item.Unit, item.Task))
+				EducationProgressDto[] itemsToInit = items
+					.Where(dto => dto.Tutorial == request.Tutorial)
+					.WhereIf(request.Unit != null, dto => dto.Unit == request.Unit)
+					.WhereIf(request.Task != null, dto => dto.Task == request.Task)
 					.ToArray();
 
-			EducationProgressDto[] itemsToInit = items
-				.WhereIf(request.Tutorial != null, dto => dto.Tutorial == request.Tutorial)
-				.WhereIf(request.Unit != null, dto => dto.Unit == request.Unit)
-				.WhereIf(request.Task != null, dto => dto.Task == request.Task)
-				.ToArray();
-
-			foreach (EducationProgressDto dto in itemsToInit)
-				dto.Clear();
+				foreach (EducationProgressDto dto in itemsToInit)
+					dto.Clear();
+			}
 
 			return await _dtoRepository.SetEducationProgress(userId, items);
 		}
