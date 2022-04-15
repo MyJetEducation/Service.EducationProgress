@@ -13,7 +13,7 @@ namespace Service.EducationProgress.Grpc
 		/// </summary>
 		[OperationContract]
 		ValueTask<EducationProgressGrpcResponse> GetProgressAsync(GetEducationProgressGrpcRequest request);
-		
+
 		/// <summary>
 		///     Progress info for single task
 		/// </summary>
@@ -31,13 +31,13 @@ namespace Service.EducationProgress.Grpc
 		/// </summary>
 		[OperationContract]
 		ValueTask<UnitEducationProgressGrpcResponse> GetUnitProgressAsync(GetUnitEducationProgressGrpcRequest request);
-		
+
 		/// <summary>
 		///     Progress info for tutorial units
 		/// </summary>
 		[OperationContract]
 		ValueTask<TutorialEducationProgressGrpcResponse> GetTutorialProgressAsync(GetTutorialEducationProgressGrpcRequest request);
-		
+
 		/// <summary>
 		///     Progress info for all tutorials
 		/// </summary>
@@ -55,5 +55,17 @@ namespace Service.EducationProgress.Grpc
 		/// </summary>
 		[OperationContract]
 		ValueTask<CommonGrpcResponse> InitProgressAsync(InitEducationProgressGrpcRequest request);
+
+		/// <summary>
+		///     Progress value for tutorial/unit
+		/// </summary>
+		[OperationContract]
+		ValueTask<ProgressDataGrpcResponse> GetProgressData(GetProgressDataGrpcRequest request);
+
+		/// <summary>
+		///     Change date/time of task
+		/// </summary>
+		[OperationContract]
+		ValueTask<CommonGrpcResponse> ChangeTaskDate(ChangeTaskDateGrpcRequest request);
 	}
 }
