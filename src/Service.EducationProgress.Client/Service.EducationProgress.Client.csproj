@@ -11,9 +11,9 @@
 
   <ItemGroup>
     <PackageReference PrivateAssets="All" Include="Autofac" Version="6.4.0" />
-    <PackageReference PrivateAssets="All" Include="Grpc.Core.Api" Version="2.48.0" />
+    <PackageReference PrivateAssets="All" Include="Grpc.Core.Api" Version="2.49.0" />
     <PackageReference PrivateAssets="All" Include="JetBrains.Annotations" Version="2022.1.0" />
-    <PackageReference PrivateAssets="All" Include="Grpc.Net.Client" Version="2.48.0" />
+    <PackageReference PrivateAssets="All" Include="Grpc.Net.Client" Version="2.49.0" />
     <PackageReference PrivateAssets="All" Include="MyJetWallet.Sdk.Grpc" Version="2.0.0" />
     <PackageReference PrivateAssets="All" Include="System.ServiceModel.Primitives" Version="4.10.0" />
     <PackageReference PrivateAssets="All" Include="protobuf-net.Grpc" Version="1.0.177" />
