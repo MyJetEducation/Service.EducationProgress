@@ -9,7 +9,7 @@
     <ProjectReference Include="..\..\src\Service.EducationProgress.Client\Service.EducationProgress.Client.csproj" />
     <ProjectReference Include="..\..\src\Service.EducationProgress.Grpc\Service.EducationProgress.Grpc.csproj" />
     <PackageReference Include="protobuf-net.Grpc" Version="1.0.177" />
-    <PackageReference Include="MyJetWallet.Sdk.Grpc" Version="2.0.0" />
+    <PackageReference Include="MyJetWallet.Sdk.Grpc" Version="2.0.1" />
   </ItemGroup>
 
 </Project>
